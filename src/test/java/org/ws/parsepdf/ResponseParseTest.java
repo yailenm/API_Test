@@ -1,9 +1,11 @@
-package org.ws.parsepdf;
+package parsepdf;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.ws.parsepdf.ParserData;
+import org.ws.parsepdf.ResponseParse;
 import org.ws.parsepdf.parsers.Captcha;
 
 import java.io.File;

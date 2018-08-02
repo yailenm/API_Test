@@ -50,6 +50,7 @@ public class ResponseParse {
 
         ObjectMapper mapper = new ObjectMapper();
 
+
         try {
             result = mapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {
