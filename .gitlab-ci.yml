@@ -8,7 +8,7 @@ deploy_prod:
   script:
     - mvn clean
     - mvn org.apache.maven.plugins:maven-war-plugin:2.3:exploded
-    - mv ./target/ws_parserpdf $CATALINA_HOME/webapps
+    - rsync  --archive ./target/ws_parserpdf/ $CATALINA_HOME/webapps/ws_parserpdf/
   environment:
     name: production
   only:
