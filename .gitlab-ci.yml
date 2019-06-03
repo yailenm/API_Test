@@ -1,10 +1,6 @@
 stages:
   - deploy
 
-variables:
-  TARGET_FOLDER: $CATALINA_HOME/webapps
-
-
 deploy_prod:
   stage: deploy
   tags:
@@ -12,7 +8,7 @@ deploy_prod:
   script:
     - mvn clean
     - mvn package
-    - mv ./target/ws_parserpdf $TARGET_FOLDER
+    - mv ./target/ws_parserpdf $CATALINA_HOME/webapps
   environment:
     name: production
   only:
