@@ -2,10 +2,8 @@ package org.ws.parsepdf;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.json.simple.JSONObject;
 import org.ws.parsepdf.parsers.CommonText;
 
 import javax.ws.rs.*;
@@ -14,16 +12,14 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.ResourceBundle;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
  * Created by charlie on 1/08/18.
  */
-@Path("/find")
+@Path("/pdfs")
 public class FinderPDFService {
 
     private ResourceBundle properties;
@@ -37,6 +33,7 @@ public class FinderPDFService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/json"})
+    @Path("/find")
     public Response find(Client[] clients) {
 
         PDDocument document = null;
@@ -54,6 +51,7 @@ public class FinderPDFService {
 
         ArrayList<Appointment> appointments = new ArrayList<>();
 
+        int count = 0;
 
         for (String pdf : pdfs) {
             try {
@@ -81,25 +79,153 @@ public class FinderPDFService {
                 }
 
                 document.close();
+                count++;
 
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("File: " +pdf);
             }
 
         }
 
-        String result = "";
+        ResponseFinder responseFinder = new ResponseFinder(200,"Files processed: "+count+" Found: "+appointments.size());
+        responseFinder.setData(appointments.toArray());
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            result = mapper.writeValueAsString(appointments);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        return Response.status(200).entity(responseFinder.getJson()).build();
+
+
+
+    }
+
+    @POST
+    @Produces({"application/json"})
+    @Path("/list")
+    public Response list() {
+
+        PDDocument document = null;
+
+        File dir = new File(properties.getString("FOLDER_TARGET"));
+
+        File[] pdfs = dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return Pattern.matches(".*pdf$",name);
+            }
+        });
+
+        Arrays.sort(pdfs);
+
+        ArrayList<String> results = new ArrayList<>();
+
+        int count = 0;
+
+        for (File pdf : pdfs) {
+            try {
+                document = PDDocument.load(pdf);
+
+                CommonText commonText = new CommonText(document);
+                String pdfText = commonText.getLines().get(1);
+                results.add("File:" + pdf.getName() + " Fecha: " + pdfText);
+
+                document.close();
+                count++;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("File: " +pdf.getName());
+            }
+
         }
 
-        return Response.status(200).entity(result).build();
+        ResponseFinder responseFinder = new ResponseFinder(200,"Files processed: "+count);
+        responseFinder.setData(results.toArray());
+
+        return Response.status(200).entity(responseFinder.getJson()).build();
+
+    }
+
+    @POST
+    @Produces({"application/json"})
+    @Path("/groupby/{param}")
+    public Response groupby(@PathParam("param") String field) {
+
+        PDDocument document = null;
+
+        File dir = new File(properties.getString("FOLDER_TARGET"));
+
+        File[] pdfs = dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return Pattern.matches(".*pdf$",name);
+            }
+        });
+
+        Arrays.sort(pdfs);
+        HashMap<String,Integer> map = new HashMap<>();
+
+        ArrayList<String> results = new ArrayList<>();
+
+        int count = 0;
 
 
+        String sfield = null;
+
+        for (File pdf : pdfs) {
+            try {
+                document = PDDocument.load(pdf);
+
+                CommonText commonText = new CommonText(document);
+                if (field.equals("date")){
+
+                    sfield = commonText.getLines().get(1);
+                    boolean isdate = Pattern.matches("[0-9]{2}-[0-9]{2}-[0-9]{4}",sfield);
+                    if (!isdate){
+                        sfield = commonText.getLines().get(0);
+                    }
+                }
+
+                if (field.equals("passport")){
+
+                    if (commonText.getLines().size() > 4){
+                        sfield = commonText.getLines().get(4);
+                        boolean ispass = Pattern.matches("[A-Z]{1}[0-9]+",sfield);
+                        if (!ispass){
+                            sfield = commonText.getLines().get(3);
+                        }
+                    }else{
+                        sfield = commonText.getText();
+                    }
+
+
+                    System.out.println(sfield +"---"+pdf);
+                }
+
+                if (!map.containsKey(sfield)) {
+                    map.put(sfield,0);
+                }
+
+                map.put(sfield,map.get(sfield) + 1);
+
+
+                document.close();
+                count++;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("File: " +pdf.getName());
+            }
+
+        }
+
+        for (String key : map.keySet()){
+            results.add(field +": " + key + " count: " + map.get(key));
+        }
+
+
+        ResponseFinder responseFinder = new ResponseFinder(200,"Files processed: "+count);
+        responseFinder.setData(results.toArray());
+
+        return Response.status(200).entity(responseFinder.getJson()).build();
 
     }
 

@@ -5,6 +5,7 @@ package org.ws.parsepdf;
  */
 public class Client {
 
+    String _id;
     String name;
     String ci;
     String last_name;
@@ -12,8 +13,17 @@ public class Client {
     String birth;
     String sex;
     String status;
-    String processing;
-    String idx;
+    String session;
+    String priority;
+    String nut;
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
 
     public String getName() {
         return name;
@@ -71,19 +81,27 @@ public class Client {
         this.status = status;
     }
 
-    public String getProcessing() {
-        return processing;
+    public String getSession() {
+        return session;
     }
 
-    public void setProcessing(String processing) {
-        this.processing = processing;
+    public void setSession(String session) {
+        this.session = session;
     }
 
-    public String getIdx() {
-        return idx;
+    public String getPriority() {
+        return priority;
     }
 
-    public void setIdx(String idx) {
-        this.idx = idx;
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public String getNut() {
+        return nut;
+    }
+
+    public void setNut(String nut) {
+        this.nut = nut;
     }
 }

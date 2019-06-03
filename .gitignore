@@ -1,3 +1,4 @@
 .idea
 ws_parsepdf.iml
 /target
+config.properties

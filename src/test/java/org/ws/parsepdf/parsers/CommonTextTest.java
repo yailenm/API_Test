@@ -1,4 +1,4 @@
-package parsepdf.parsers;
+package org.ws.parsepdf.parsers;
 
 import jdk.nashorn.internal.objects.NativeArray;
 import junit.framework.TestCase;

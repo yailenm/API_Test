@@ -32,6 +32,12 @@ public class CommonText extends PDFTextStripper {
 
     public String getText(){
 
+        lines = getLines();
+        return lines.toString();
+    }
+
+    public List<String> getLines() {
+
         Writer dummy = null;
         try {
 
@@ -47,9 +53,8 @@ public class CommonText extends PDFTextStripper {
             }
         }
 
-        return lines.toString();
+        return lines;
     }
-
 
     @Override
     protected void writeString(String text, List<TextPosition> textPositions) throws IOException {
