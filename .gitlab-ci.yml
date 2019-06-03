@@ -2,7 +2,7 @@ stages:
   - deploy
 
 variables:
-  TARGET_FOLDER: $CATALINA_HOME/webapps"
+  TARGET_FOLDER: $CATALINA_HOME/webapps
 
 
 deploy_prod:
