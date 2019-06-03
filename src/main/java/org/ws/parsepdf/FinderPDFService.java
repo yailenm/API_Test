@@ -162,6 +162,7 @@ public class FinderPDFService {
 
         Arrays.sort(pdfs);
         HashMap<String,Integer> map = new HashMap<>();
+        Set<String> tmpS = new HashSet<>();
 
         ArrayList<String> results = new ArrayList<>();
 
@@ -176,6 +177,20 @@ public class FinderPDFService {
 
                 CommonText commonText = new CommonText(document);
                 if (field.equals("date")){
+
+                    if (commonText.getLines().size() > 4){
+                        sfield = commonText.getLines().get(4);
+                        boolean ispass = Pattern.matches("[A-Z]{1}[0-9]+",sfield);
+                        if (!ispass){
+                            sfield = commonText.getLines().get(3);
+                        }
+                    }
+
+                    if(!tmpS.contains(sfield)){
+                        tmpS.add(sfield);
+                    }else {
+                        continue;
+                    }
 
                     sfield = commonText.getLines().get(1);
                     boolean isdate = Pattern.matches("[0-9]{2}-[0-9]{2}-[0-9]{4}",sfield);
