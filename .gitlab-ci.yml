@@ -7,7 +7,7 @@ deploy_prod:
     - appointment
   script:
     - mvn clean
-    - mvn package
+    - mvn org.apache.maven.plugins:maven-war-plugin:2.3:exploded
     - mv ./target/ws_parserpdf $CATALINA_HOME/webapps
   environment:
     name: production
