@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -189,6 +191,7 @@ public class FinderPDFService {
                     if(!tmpS.contains(sfield)){
                         tmpS.add(sfield);
                     }else {
+                        document.close();
                         continue;
                     }
 
@@ -232,9 +235,37 @@ public class FinderPDFService {
 
         }
 
-        for (String key : map.keySet()){
-            results.add(field +": " + key + " count: " + map.get(key));
+        if (field.equals("date")){
+
+            SimpleDateFormat dateFormat =new SimpleDateFormat("dd-MM-yyyy");
+            ArrayList<Date> dates = new ArrayList<>();
+
+            for (String sdate : map.keySet()){
+                try {
+                    dates.add(dateFormat.parse(sdate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            Collections.sort(dates);
+
+            for (Date date : dates){
+                String key =  dateFormat.format(date);
+                results.add(field +": " + key + " count: " + map.get(key));
+            }
+
         }
+
+        if (field.equals("passport")){
+
+            for (String key : map.keySet()){
+                results.add(field +": " + key + " count: " + map.get(key));
+            }
+
+        }
+
+
 
 
         ResponseFinder responseFinder = new ResponseFinder(200,"Files processed: "+count);
