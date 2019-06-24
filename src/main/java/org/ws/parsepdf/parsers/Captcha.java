@@ -11,10 +11,13 @@ import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -24,6 +27,9 @@ import java.util.List;
 public class Captcha extends PDFStreamEngine {
 
     private String captcha;
+    private ArrayList<BufferedImage> bufferedImages;
+    private Integer width = 0;
+    private Integer heigth = 0;
 
     /**
      * Default constructor.
@@ -31,6 +37,7 @@ public class Captcha extends PDFStreamEngine {
      * @throws IOException If there is an error loading text stripper properties.
      */
     public Captcha() throws IOException {
+        this.bufferedImages = new ArrayList<>();
     }
 
     public String getCaptchaBase64(PDDocument document) throws IOException {
@@ -65,18 +72,14 @@ public class Captcha extends PDFStreamEngine {
                 int imageWidth = image.getWidth();
                 int imageHeight = image.getHeight();
 
-                if(imageHeight < 100){
+                if(imageWidth < 230 && imageHeight < 100 && imageHeight > 1){
+                    width += imageWidth;
+                    if(heigth == 0) heigth = imageHeight;
                     // same image to local
                     BufferedImage bImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
                     bImage = image.getImage();
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
-                    ImageIO.write(bImage, "PNG", Base64.getEncoder().wrap(os));
-
-                    this.captcha = os.toString(StandardCharsets.ISO_8859_1.name());
-
+                    bufferedImages.add(bImage);
                 }
-
-
 
             } else if (xobject instanceof PDFormXObject) {
                 PDFormXObject form = (PDFormXObject) xobject;
@@ -88,6 +91,30 @@ public class Captcha extends PDFStreamEngine {
     }
 
     public String getCaptcha() {
-        return captcha;
+        BufferedImage result = new BufferedImage(width,heigth, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = result.getGraphics();
+
+        int x = 0;
+        int y = 0;
+
+        for (BufferedImage bi : bufferedImages){
+            g.drawImage(bi,x,y, null);
+            x += bi.getWidth();
+        }
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(result, "PNG", Base64.getEncoder().wrap(os));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+            return os.toString(StandardCharsets.ISO_8859_1.name());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }

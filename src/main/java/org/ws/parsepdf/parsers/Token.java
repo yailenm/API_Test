@@ -44,7 +44,7 @@ public class Token extends PDFTextStripper {
 
             dummy = new OutputStreamWriter(new ByteArrayOutputStream());
             writeText(document, dummy);
-            rtoken = getLine(3);
+            rtoken = getLineToken();
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
@@ -59,8 +59,12 @@ public class Token extends PDFTextStripper {
 
     }
 
-    public String getLine(int idx){
-        return lines.get(idx);
+    public String getLineToken(){
+        String result = "";
+        for (String line : lines){
+            result = line.length() > result.length() ? line : result;
+        }
+        return result;
     }
 
 
