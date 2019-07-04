@@ -72,7 +72,7 @@ public class Captcha extends PDFStreamEngine {
                 int imageWidth = image.getWidth();
                 int imageHeight = image.getHeight();
 
-                if(imageWidth < 230 && imageHeight < 100 && imageHeight > 1){
+                if(imageWidth < 240 && imageHeight < 100 && imageHeight > 1){
                     width += imageWidth;
                     if(heigth == 0) heigth = imageHeight;
                     // same image to local
