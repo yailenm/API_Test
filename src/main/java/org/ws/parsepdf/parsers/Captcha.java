@@ -51,7 +51,22 @@ public class Captcha extends PDFStreamEngine {
             e.printStackTrace();
         }
 
-        return getCaptcha();
+        return getCaptcha(8,15);
+
+    }
+
+    public String getOrderCaptchaBase64(PDDocument document) throws IOException {
+
+        try {
+            for (PDPage page : document.getPages()) {
+                processPage(page);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return getCaptcha(0,7);
 
     }
 
@@ -74,7 +89,11 @@ public class Captcha extends PDFStreamEngine {
 
                 if(imageWidth < 240 && imageHeight < 100 && imageHeight > 1){
                     width += imageWidth;
-                    if(heigth == 0) heigth = imageHeight;
+                    if(heigth == 0){
+                        heigth = imageHeight;
+                    }else if(imageHeight > heigth){
+                        heigth = imageHeight;
+                    }
                     // same image to local
                     BufferedImage bImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
                     bImage = image.getImage();
@@ -90,14 +109,16 @@ public class Captcha extends PDFStreamEngine {
         }
     }
 
-    public String getCaptcha() {
+    public String getCaptcha(int start, int end) {
         BufferedImage result = new BufferedImage(width,heigth, BufferedImage.TYPE_INT_ARGB);
         Graphics g = result.getGraphics();
 
         int x = 0;
         int y = 0;
 
-        for (BufferedImage bi : bufferedImages){
+
+        for (int i = start; i <= end; i++) {
+            BufferedImage bi  = bufferedImages.get(i);
             g.drawImage(bi,x,y, null);
             x += bi.getWidth();
         }

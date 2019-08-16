@@ -36,8 +36,8 @@ public class FileUploadService {
     @POST
     @Consumes({"multipart/form-data"})
     @Produces({"application/json"})
-    public Response uploadFile(@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file") FormDataContentDisposition fileDetail) {
-        if(uploadedInputStream != null && fileDetail != null) {
+    public Response uploadFile(@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("passwd") String passwd) {
+        if(uploadedInputStream != null && passwd != null) {
             try {
                 this.createFolderIfNotExists(UPLOAD_FOLDER);
             } catch (SecurityException var9) {
@@ -49,9 +49,11 @@ public class FileUploadService {
             ParserData data = new ParserData();
 
             try {
-                document = PDDocument.load(uploadedInputStream, MemoryUsageSetting.setupTempFileOnly());
+                document = PDDocument.load(uploadedInputStream, passwd ,MemoryUsageSetting.setupTempFileOnly());
+                document.setAllSecurityToBeRemoved(true);
                 Captcha e = new Captcha();
                 data.setCaptcha(e.getCaptchaBase64(document));
+                data.setOrderCaptcha(e.getOrderCaptchaBase64(document));
                 Token token = new Token(document);
                 data.setToken(token.getToken());
                 document.close();

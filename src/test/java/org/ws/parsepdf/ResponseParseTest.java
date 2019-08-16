@@ -1,7 +1,5 @@
 package parsepdf;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.ws.parsepdf.ParserData;
@@ -10,7 +8,6 @@ import org.ws.parsepdf.parsers.Captcha;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by charlie on 5/02/18.
@@ -28,7 +25,7 @@ public class ResponseParseTest extends TestCase {
         PDDocument document = null;
 
         try {
-            document = PDDocument.load(new File("/tmp/codigo-3255602287165515874.pdf"));
+            document = PDDocument.load(new File("/home/charlie/Documents/Projects/appointments/mexico/DOC-20190622-WA0001.pdf"));
             Captcha captcha = new Captcha();
 
             data.setCaptcha(captcha.getCaptchaBase64(document));

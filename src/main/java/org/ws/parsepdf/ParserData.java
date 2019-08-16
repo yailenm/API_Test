@@ -6,6 +6,7 @@ package org.ws.parsepdf;
 public class ParserData {
 
     private String captcha;
+    private String ordercaptcha;
     private String token;
 
     public ParserData() {}
@@ -21,6 +22,13 @@ public class ParserData {
 
     public void setCaptcha(String captcha) {
         this.captcha = captcha;
+    }
+    public void setOrderCaptcha(String order) {
+        this.ordercaptcha = order;
+    }
+
+    public String getOrderCaptcha() {
+        return this.ordercaptcha;
     }
 
     public String getToken() {

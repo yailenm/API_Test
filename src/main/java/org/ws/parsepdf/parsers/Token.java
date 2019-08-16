@@ -62,7 +62,7 @@ public class Token extends PDFTextStripper {
     public String getLineToken(){
         String result = "";
         for (String line : lines){
-            result = line.length() > result.length() ? line : result;
+            result = line.length()  > result.length() && line.indexOf(" ") == -1 ? line : result;
         }
         return result;
     }
