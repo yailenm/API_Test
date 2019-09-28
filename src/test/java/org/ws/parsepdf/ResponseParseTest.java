@@ -1,6 +1,7 @@
 package parsepdf;
 
 import junit.framework.TestCase;
+import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.ws.parsepdf.ParserData;
 import org.ws.parsepdf.ResponseParse;
@@ -25,7 +26,8 @@ public class ResponseParseTest extends TestCase {
         PDDocument document = null;
 
         try {
-            document = PDDocument.load(new File("/home/charlie/Documents/Projects/appointments/mexico/DOC-20190622-WA0001.pdf"));
+            document = PDDocument.load(new File("/home/charlie/Documents/Projects/appointments/mexico/CodigoSeguridadCita.pdf"),"captcha", MemoryUsageSetting.setupTempFileOnly());
+            document.setAllSecurityToBeRemoved(true);
             Captcha captcha = new Captcha();
 
             data.setCaptcha(captcha.getCaptchaBase64(document));

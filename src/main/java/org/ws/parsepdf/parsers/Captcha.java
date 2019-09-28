@@ -50,6 +50,8 @@ public class Captcha extends PDFStreamEngine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if(this.bufferedImages.size() == 1 ) return getCaptcha(0,0);
+        if(this.bufferedImages.size() == 8 ) return getCaptcha(0,7);
 
         return getCaptcha(8,15);
 
@@ -70,6 +72,9 @@ public class Captcha extends PDFStreamEngine {
 
     }
 
+    public ArrayList<BufferedImage> getBufferedImages() {
+        return bufferedImages;
+    }
 
     /**
      * @param operator The operation to perform.

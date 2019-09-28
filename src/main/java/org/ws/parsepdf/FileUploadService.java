@@ -53,13 +53,20 @@ public class FileUploadService {
                 document.setAllSecurityToBeRemoved(true);
                 Captcha e = new Captcha();
                 data.setCaptcha(e.getCaptchaBase64(document));
-                data.setOrderCaptcha(e.getOrderCaptchaBase64(document));
+
+                if (e.getBufferedImages().size() > 8){
+                    data.setOrderCaptcha(e.getOrderCaptchaBase64(document));
+                }
+
                 Token token = new Token(document);
                 data.setToken(token.getToken());
                 document.close();
                 uploadedInputStream.close();
             } catch (IOException var8) {
                 var8.printStackTrace();
+                responseParse.setStatus(500);
+                responseParse.setMsg(var8.getMessage());
+                return Response.status(500).entity(responseParse.getJson()).build();
             }
 
             responseParse.setData(data);

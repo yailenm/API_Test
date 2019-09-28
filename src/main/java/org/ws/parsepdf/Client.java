@@ -16,6 +16,8 @@ public class Client {
     String session;
     String priority;
     String nut;
+    String country;
+    String type;
 
     public String get_id() {
         return _id;
@@ -103,5 +105,21 @@ public class Client {
 
     public void setNut(String nut) {
         this.nut = nut;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
