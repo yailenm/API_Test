@@ -1,11 +1,13 @@
 package org.ws.parsepdf;
 
+import java.lang.reflect.Array;
+
 /**
  * Created by charlie on 1/08/18.
  */
 public class Appointment {
     String passport;
-    String content;
+    String[] content;
     String file;
 
     public String getPassport() {
@@ -16,11 +18,11 @@ public class Appointment {
         this.passport = passport;
     }
 
-    public String getContent() {
+    public String[] getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(String[] content) {
         this.content = content;
     }
 

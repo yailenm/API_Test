@@ -60,15 +60,15 @@ public class FinderPDFService {
                 document = PDDocument.load(new File(dir.getPath()+"/"+pdf));
 
                 CommonText commonText = new CommonText(document);
-                String pdfText = commonText.getText();
+                String[] pdfText = commonText.getLines().toArray( new String[commonText.getLines().size()]);
 
                 boolean flag_stop = false;
                 Iterator<Client> iterator = Arrays.asList(clients).iterator();
-
+                String passport = pdfText[4];
                 while (iterator.hasNext() && !flag_stop) {
                     Client elem = iterator.next();
 
-                    if(pdfText.indexOf(elem.getPassport()) > 0){
+                    if(passport.equals(elem.getPassport())){
                         appointment = new Appointment();
                         appointment.setPassport(elem.getPassport());
                         appointment.setContent(pdfText);

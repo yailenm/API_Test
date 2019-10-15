@@ -38,6 +38,10 @@ public class CommonText extends PDFTextStripper {
 
     public List<String> getLines() {
 
+        if (lines.size() > 0 ){
+            return lines;
+        }
+
         Writer dummy = null;
         try {
 
