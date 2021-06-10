@@ -5,12 +5,9 @@
 
 package org.ws.parsepdf;
 
-import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataParam;
-import org.apache.pdfbox.io.MemoryUsageSetting;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.ws.parsepdf.parsers.Captcha;
-import org.ws.parsepdf.parsers.Token;
+import org.ws.logic.QLearning;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -20,13 +17,15 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Path("/upload")
 public class FileUploadService {
     private static final String UPLOAD_FOLDER = System.getProperty("java.io.tmpdir") + "/uploaded";
+   // private static final String UPLOAD_FOLDER_CONST = System.getProperty("java.io.tmpdir") + "/uploaded";
     @Context
     private UriInfo context;
 
@@ -34,61 +33,91 @@ public class FileUploadService {
     }
 
     @POST
-    @Consumes({"multipart/form-data"})
+   @Consumes({"multipart/form-data"})
+   // @Consumes({"application/json"})
     @Produces({"application/json"})
-    public Response uploadFile(@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("passwd") String passwd) {
-        if(uploadedInputStream != null && passwd != null) {
+    //add boolean zone
+   // public Response uploadFile(@FormDataParam("file") FormDataBodyPart p, @FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file2") InputStream uploadedInputStream2, @FormDataParam("passwd") String passwd, @FormDataParam("iter") int iter) {
+    public Response uploadFile(@FormDataParam("constraints") FormDataBodyPart p, @FormDataParam("timeRecordings") FormDataBodyPart p1, @FormDataParam("password") String passwd, @FormDataParam("iter") int iter) {
+        if(p != null && p1 != null && passwd != null && iter > 0) {
             try {
                 this.createFolderIfNotExists(UPLOAD_FOLDER);
-            } catch (SecurityException var9) {
+                //this.createFolderIfNotExists(UPLOAD_FOLDER_CONST);
+            } catch (SecurityException var) {
                 return Response.status(500).entity("Can not create destination folder on server").build();
             }
-
-            ResponseParse responseParse = new ResponseParse(200, "File parsed");
-            PDDocument document = null;
-            ParserData data = new ParserData();
-
+            double LR = 0.1;
+            double DF = 0.8;
+            double epsi = 0.2;
+            File[] targetFile = new File[2];
+            targetFile[0] = new File(String.format("%s/targetFile.txt", UPLOAD_FOLDER));
+            targetFile[1] = new File(String.format("%s/targetFile2.txt", UPLOAD_FOLDER));
             try {
-                document = PDDocument.load(uploadedInputStream, passwd ,MemoryUsageSetting.setupTempFileOnly());
-                document.setAllSecurityToBeRemoved(true);
-                Captcha e = new Captcha();
-                data.setCaptcha(e.getCaptchaBase64(document));
-
-                if (e.getBufferedImages().size() > 8){
-                    data.setOrderCaptcha(e.getOrderCaptchaBase64(document));
-                }
-
-                Token token = new Token(document);
-                data.setToken(token.getToken());
-                document.close();
-                uploadedInputStream.close();
-            } catch (IOException var8) {
-                var8.printStackTrace();
-                responseParse.setStatus(500);
-                responseParse.setMsg(var8.getMessage());
-                return Response.status(500).entity(responseParse.getJson()).build();
+                Files.write(Paths.get(targetFile[0].getPath()), p.getValue().getBytes());
+                Files.write(Paths.get(targetFile[1].getPath()), p1.getValue().getBytes());
+                // FileUtils.copyInputStreamToFile(uploadedInputStream, targetFile[0]);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            responseParse.setData(data);
-            return Response.status(200).entity(responseParse.getJson()).build();
-        } else {
+            QLearning ql = null;
+            try {
+                ql = new QLearning(targetFile, LR, DF, iter, epsi);
+                ql.ReadData(targetFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            int bestSol = 0;
+            try {
+                bestSol = ql.Execute(LR, DF);
+            } catch (FileNotFoundException | CloneNotSupportedException e1) {
+                e1.printStackTrace();
+            }
+            return Response.status(200).entity(bestSol).build();
+        }else{
             return Response.status(400).entity("Invalid form data").build();
         }
-    }
 
-    private void saveToFile(InputStream inStream, String target) throws IOException {
-        FileOutputStream out = null;
-        boolean read = false;
-        byte[] bytes = new byte[1024];
-        out = new FileOutputStream(new File(target));
+       /* if(uploadedInputStream != null && uploadedInputStream2 != null && passwd != null && iter > 0) {
+            try {
+                this.createFolderIfNotExists(UPLOAD_FOLDER);
+                this.createFolderIfNotExists(UPLOAD_FOLDER_CONST);
+            } catch (SecurityException var) {
+                return Response.status(500).entity("Can not create destination folder on server").build();
+            }
+            double LR = 0.1;
+            double DF = 0.8;
+            double epsi = 0.2;
+            File [] targetFile = new File[2];
+            targetFile[0] = new File(String.format("%s/targetFile.tmp", UPLOAD_FOLDER));
+            targetFile[1] = new File(String.format("%s/targetFile2.tmp", UPLOAD_FOLDER_CONST));
+            try {
+                FileUtils.copyInputStreamToFile(uploadedInputStream, targetFile[0]);
+                FileUtils.copyInputStreamToFile(uploadedInputStream2, targetFile[1]);
+                QLearning ql = new QLearning(targetFile, LR, DF, iter, epsi);
+                ql.ReadData(targetFile);
+                try {
+                    //QL2.ExecuteEverybody(LR, DF);
+                    ql.Execute(LR, DF);
+                } catch (FileNotFoundException | CloneNotSupportedException e1) {
+                    e1.printStackTrace();
+                } // TODO Auto-generated catch block
 
-        int read1;
-        while((read1 = inStream.read(bytes)) != -1) {
-            out.write(bytes, 0, read1);
-        }
+                // FileUtils.copyInputStreamToFile(uploadedInputStream, targetFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        out.flush();
-        out.close();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(Date.from(Instant.now()));
+            String result2 = String.format(
+                    "%1$tY-%1$tm-%1$td.txt", cal);
+            String PathTest = System.getProperty("user.home")+"/Desktop/"+"Schedule__" + result2;
+            File f = new File(PathTest);
+            return  Response.status(200).entity(f).build();
+           // return Response.status(200).entity("OK").build();
+        } else {*/
+
+      //  }
     }
 
     private void createFolderIfNotExists(String dirName) throws SecurityException {
