@@ -42,23 +42,26 @@ public class ServiceRescheduleLessResources {
                                @FormDataParam("iter") int iter, @FormDataParam("reschedule") boolean reschedule) {
 
         if(resource != null && currentTime > -1 && iter > 0) {
-            readSolutionFile(iter,reschedule);//read solution file, constraints and time recordings
-            int machine = getMachine(resource); //search id of machine
-            for (int i = 0; i < ql.Machines.length; i++){
-                ql.Machines[i].timeReSchedule = currentTime;
+            boolean solution = readSolutionFile(iter,reschedule);//read solution file, constraints and time recordings
+            if (solution){
+                int machine = getMachine(resource); //search id of machine
+                for (int i = 0; i < ql.Machines.length; i++){
+                    ql.Machines[i].timeReSchedule = currentTime;
+                }
+                ql.Machines[machine].active = false;
+                startTimes(machine,currentTime);
+                try {
+                    ql.ExecuteReSchedule();
+                } catch (FileNotFoundException | CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+                File solution1 = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
+                return Response.status(200).entity(solution1).build();
+            }else{
+                return Response.status(400).entity("Invalid form data").build();
             }
-            ql.Machines[machine].active = false;
-            startTimes(machine,currentTime);
-            try {
-                ql.ExecuteReSchedule();
-            } catch (FileNotFoundException | CloneNotSupportedException e) {
-                e.printStackTrace();
-            }
-            return Response.status(200).entity("OK").build();
-        }else{
-            return Response.status(400).entity("Invalid form data").build();
-        }
-
+        }else
+            return Response.status(400).entity("Files don't exist").build();
 
     }
 
@@ -72,36 +75,48 @@ public class ServiceRescheduleLessResources {
         return machine;
     }
 
-    public void readSolutionFile(int iter,boolean reschedule) {
-
-        File solution = reschedule ? new File(String.format("%s/solution_copy.tmp", UPLOAD_FOLDER))
-                : new File(String.format("%s/solution.tmp", UPLOAD_FOLDER)); //Read before solution
-
-        if (!reschedule) {
-            File solutionCopy = new File(String.format("%s/solution_copy.tmp", UPLOAD_FOLDER)); //crear copia de la solution para reschedule
-            try {
-                FileUtils.copyFile(solution,solutionCopy); //copy solution to solution_copy
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    //leer el archivo solution para saber dónde es la interrupcion
+    public boolean readSolutionFile(int iter, boolean reschedule){
+        File solution = null;
         File[] targetFile = new File[2]; //files constraints and times recording
-        targetFile[0] = new File(String.format("%s/targetFile.txt", UPLOAD_FOLDER));
-        targetFile[1] = new File(String.format("%s/targetFile2.txt", UPLOAD_FOLDER));
+        try {
+            solution = reschedule ? new File(String.format("%s/solution_copy.tmp", UPLOAD_FOLDER))
+                    : new File(String.format("%s/solution.tmp", UPLOAD_FOLDER)); //Read before solution
 
+            targetFile[0] = new File(String.format("%s/targetFile.txt", UPLOAD_FOLDER));
+            targetFile[1] = new File(String.format("%s/targetFile2.txt", UPLOAD_FOLDER));
+
+            if (!reschedule && solution.exists()) {
+                File solutionCopy = new File(String.format("%s/solution_copy.tmp", UPLOAD_FOLDER)); //crear copia de la solution para reschedule
+                FileUtils.copyFile(solution,solutionCopy); //copy solution to solution_copy
+            }
+
+        } catch (FileNotFoundException e) {
+            Response.status(500).entity("No existen ficheros soluciones en el server").build();
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         double LR = 0.1;
         double DF = 0.8;
         double epsi = 0.2;
 
         try {
-            ql = new QLearning(targetFile, LR, DF, iter, epsi);
-            ql.ReadData(targetFile);
-            new Test(solution,ql);
-           // ql.PrintJob();
+            if (solution.exists()){
+                ql = new QLearning(targetFile, LR, DF, iter, epsi);
+                ql.ReadData(targetFile);
+                new Test(solution,ql);
+            }
+            // ql.PrintJob();
+        } catch (FileNotFoundException e) {
+            Response.status(500).entity("No existen ficheros soluciones en el server").build();
+            e.printStackTrace();
         } catch (IOException e) {
+            Response.status(500).entity("Ficheros incorrectos").build();
             e.printStackTrace();
         }
+        return solution.exists();
     }
 
     private void startTimes(int machine, int currentTime) {

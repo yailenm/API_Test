@@ -346,7 +346,7 @@ public class QLearning {
 					pw.flush();
 				}
 		pw.close();	
-		//SaveToTxt();
+		SaveToTxt();
 		}
 		catch (FileNotFoundException e) {
 			System.err.println("Problem writing to file "+SolutionFile.getAbsolutePath());
@@ -359,7 +359,9 @@ public class QLearning {
 		PrintWriter pw;
 		//String PathSol = "Solutions/Mine/Test.txt";
 		//String PathSol = "Schedule.txt";
-		
+		String UPLOAD_FOLDER = System.getProperty("java.io.tmpdir") + "/uploaded";
+
+
 		Calendar cal = Calendar.getInstance();
         cal.setTime(Date.from(Instant.now()));
         
@@ -370,9 +372,9 @@ public class QLearning {
                 "%1$tY-%1$tm-%1$td.txt", cal);
 
 
-		//File targetFile = new File(String.format("%s/targetFile.txt", PathTest2));
-        String PathTest = System.getProperty("user.home")+"/Desktop/"+"Schedule__" + result2;
-		File SolutionFile=new File(PathTest);
+       // String PathTest = System.getProperty("user.home")+"/Desktop/"+"Schedule__" + result2;
+		//File SolutionFile=new File(PathTest);
+		File SolutionFile=new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
 		
 		
 //		File SolutionFile=new File(PathSol);

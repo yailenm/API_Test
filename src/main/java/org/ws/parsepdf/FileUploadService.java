@@ -72,7 +72,8 @@ public class FileUploadService {
             } catch (FileNotFoundException | CloneNotSupportedException e1) {
                 e1.printStackTrace();
             }
-            return Response.status(200).entity(bestSol).build();
+            File solution = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
+            return Response.status(200).entity(solution).build();
         }else{
             return Response.status(400).entity("Invalid form data").build();
         }
