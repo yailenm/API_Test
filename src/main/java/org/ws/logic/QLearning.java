@@ -76,7 +76,7 @@ public class QLearning {
 	
 	
 	@SuppressWarnings("resource")
-	public void ReadData(File[] file) throws IOException,NullPointerException{
+	public void ReadData(File[] file) throws IOException,NullPointerException,ArrayIndexOutOfBoundsException{
 		//System.out.println("Name "+file[0].getName().toString()+" "+file[1].getName());
 		
 		
@@ -1352,7 +1352,7 @@ public class QLearning {
 				SaveToFile(file_saved, BestSol);
 			}
 			if (cmax < BestSol){
-				System.out.println("encontre mejor sol");
+				//System.out.println("encontre mejor sol");
 				BestSol = cmax;
 				SaveToFile(file_saved, BestSol);
 				R=1;

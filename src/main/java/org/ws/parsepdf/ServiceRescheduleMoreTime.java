@@ -35,15 +35,13 @@ public class ServiceRescheduleMoreTime {
     }
 
     @POST
-   @Consumes({"multipart/form-data"})
-   // @Consumes({"application/json"})
+    @Consumes({"multipart/form-data"})
     @Produces({"application/json"})
     //Parametros: nombre del recurso, timeActual, newTime
     public Response uploadFile(@FormDataParam("resource") String resource, @FormDataParam("currentTime") int currentTime, @FormDataParam("timeOperation") int timeOperation,
                                @FormDataParam("reschedule") boolean reschedule, @FormDataParam("password") String passwd, @FormDataParam("iter") int iter) {
       // System.out.println( p.getValue());
         if(resource != null && currentTime > -1 && "12345".equals(passwd) && iter > 0) {
-
             boolean solution = readSolutionFile(iter, reschedule);//read solution file, constraints and time recordings
             if (solution) {
                 int job, op;
@@ -51,28 +49,30 @@ public class ServiceRescheduleMoreTime {
                 int[] job_op = searchJobOP(machine, currentTime);//buscar que operation is
                 job = job_op[0];
                 op = job_op[1];
-
-                //asignar a timeReSchedule el tiempo a empezar la resecuenciacion
-                ql.Machines[machine].timeReSchedule = ql.Jobs[job].operations.get(op).initial_time + timeOperation;
-                // System.out.println("Job "+job+" op "+op+" Time ReSchedule "+ ql.Machines[machine].timeReSchedule);
-                Operation operation = ql.Jobs[job].operations.get(op);
-                startTimes(operation, timeOperation);
-
-                //New times of the operation
-                operation.end_time = operation.initial_time + timeOperation; //new operation's time initial
-                operation.proc_time = timeOperation;
-                try {
-                    ql.ExecuteReSchedule();
-                } catch (FileNotFoundException | CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-                File solution1 = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
-                return Response.status(200).entity(solution1).build();
+               // System.out.println("ql.Jobs[job].operations.get(op).proc_time "+ql.Jobs[job].operations.get(op).proc_time);
+                //check if new time longer than old time
+                if(ql.Jobs[job].operations.get(op).proc_time < timeOperation) {
+                    Operation operation = ql.Jobs[job].operations.get(op);
+                    startTimes(operation, timeOperation,currentTime);
+                    //asignar a timeReSchedule el tiempo a empezar la resecuenciacion
+                    ql.Machines[machine].timeReSchedule = ql.Jobs[job].operations.get(op).initial_time + timeOperation;
+                    //New time of the operation
+                    operation.end_time = operation.initial_time + timeOperation; //new operation's time initial
+                    operation.proc_time = timeOperation;
+                    try {
+                        ql.ExecuteReSchedule();
+                    } catch (FileNotFoundException | CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                    File solution1 = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
+                    return Response.status(200).entity(solution1).build();
+                }else
+                    return Response.status(400).entity("You should enter a duration longer than the previous one "+ql.Jobs[job].operations.get(op).proc_time).build();
             } else {
-                return Response.status(400).entity("Invalid form data").build();
+                return Response.status(400).entity("Files don't exist in the server").build();
             }
         }else
-            return Response.status(400).entity("Files don't exist").build();
+            return Response.status(400).entity("You must sent correctly all the requirement parameters").build();
        // return Response.status(200).entity("OK").build();
 
     }
@@ -137,7 +137,7 @@ public class ServiceRescheduleMoreTime {
         return solution.exists();
     }
 
-    private void startTimes(Operation operationFix, int newTime) {
+    private void startTimes(Operation operationFix, int newTime, int currentTime) {
         ArrayList <Operation> opNoModify = new ArrayList<>();
         for (int i = 0; i < ql.Jobs.length; i++) {
             for (int j = 0; j < ql.Jobs[i].operations.size(); j++) {
@@ -176,8 +176,11 @@ public class ServiceRescheduleMoreTime {
         for (Operation operation : opNoModify) {
             //System.out.println(" job "+opNoModify.get(i).GetJob()+" op "+opNoModify.get(i).GetID()+" name "+ opNoModify.get(i).name+" Ma "+opNoModify.get(i).Ma);
             //time of machines
-            if (operation.end_time > ql.Machines[operation.Ma].timeReSchedule)
+            //if (operation.end_time > ql.Machines[operation.Ma].timeReSchedule)
+            if (operation.end_time > currentTime)
                 ql.Machines[operation.Ma].timeReSchedule = operation.end_time;
+            else
+                ql.Machines[operation.Ma].timeReSchedule = currentTime;
 
             //time of zones
             String job_operation_machine = "" + operation.GetJob() + operation.GetID() + operation.Ma;

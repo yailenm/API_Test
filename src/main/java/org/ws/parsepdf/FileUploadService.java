@@ -7,6 +7,7 @@ package org.ws.parsepdf;
 
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataParam;
+import org.apache.commons.io.FileUtils;
 import org.ws.logic.QLearning;
 
 import javax.ws.rs.Consumes;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -33,12 +35,11 @@ public class FileUploadService {
     }
 
     @POST
-   @Consumes({"multipart/form-data"})
-   // @Consumes({"application/json"})
+    @Consumes({"multipart/form-data"})
     @Produces({"application/json"})
     //add boolean zone
    // public Response uploadFile(@FormDataParam("file") FormDataBodyPart p, @FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file2") InputStream uploadedInputStream2, @FormDataParam("passwd") String passwd, @FormDataParam("iter") int iter) {
-    public Response uploadFile(@FormDataParam("constraints") FormDataBodyPart p, @FormDataParam("timeRecordings") FormDataBodyPart p1, @FormDataParam("password") String passwd, @FormDataParam("iter") int iter) {
+    public Response uploadFile(@FormDataParam("constraints") InputStream p, @FormDataParam("timeRecordings") InputStream p1, @FormDataParam("password") String passwd, @FormDataParam("iter") int iter) {
         if(p != null && p1 != null && passwd != null && iter > 0) {
             try {
                 this.createFolderIfNotExists(UPLOAD_FOLDER);
@@ -53,9 +54,10 @@ public class FileUploadService {
             targetFile[0] = new File(String.format("%s/targetFile.txt", UPLOAD_FOLDER));
             targetFile[1] = new File(String.format("%s/targetFile2.txt", UPLOAD_FOLDER));
             try {
-                Files.write(Paths.get(targetFile[0].getPath()), p.getValue().getBytes());
-                Files.write(Paths.get(targetFile[1].getPath()), p1.getValue().getBytes());
-                // FileUtils.copyInputStreamToFile(uploadedInputStream, targetFile[0]);
+                //Files.write(Paths.get(targetFile[0].getPath()), p.getValue().getBytes());
+               // Files.write(Paths.get(targetFile[1].getPath()), p1.getValue().getBytes());
+                 FileUtils.copyInputStreamToFile(p, targetFile[0]);
+                FileUtils.copyInputStreamToFile(p1, targetFile[1]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -63,8 +65,9 @@ public class FileUploadService {
             try {
                 ql = new QLearning(targetFile, LR, DF, iter, epsi);
                 ql.ReadData(targetFile);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException | ArrayIndexOutOfBoundsException e) {
+                return Response.status(400).entity("Incorrect files").build();
+                //e.printStackTrace();
             }
             int bestSol = 0;
             try {
@@ -75,7 +78,7 @@ public class FileUploadService {
             File solution = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
             return Response.status(200).entity(solution).build();
         }else{
-            return Response.status(400).entity("Invalid form data").build();
+            return Response.status(400).entity("You must sent all the requirement parameters").build();
         }
 
        /* if(uploadedInputStream != null && uploadedInputStream2 != null && passwd != null && iter > 0) {
