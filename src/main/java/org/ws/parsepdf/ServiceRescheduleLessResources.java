@@ -58,10 +58,10 @@ public class ServiceRescheduleLessResources {
                 File solution1 = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
                 return Response.status(200).entity(solution1).build();
             }else{
-                return Response.status(400).entity("Invalid form data").build();
+                return Response.status(400).entity("Files don't exist on server").build();
             }
         }else
-            return Response.status(400).entity("Files don't exist").build();
+            return Response.status(400).entity("You must sent correctly all the requirement parameters").build();
 
     }
 

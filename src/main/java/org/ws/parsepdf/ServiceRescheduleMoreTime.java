@@ -69,7 +69,7 @@ public class ServiceRescheduleMoreTime {
                 }else
                     return Response.status(400).entity("You should enter a duration longer than the previous one "+ql.Jobs[job].operations.get(op).proc_time).build();
             } else {
-                return Response.status(400).entity("Files don't exist in the server").build();
+                return Response.status(400).entity("Files don't exist on server").build();
             }
         }else
             return Response.status(400).entity("You must sent correctly all the requirement parameters").build();

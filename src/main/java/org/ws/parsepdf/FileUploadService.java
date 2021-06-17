@@ -66,7 +66,7 @@ public class FileUploadService {
                 ql = new QLearning(targetFile, LR, DF, iter, epsi);
                 ql.ReadData(targetFile);
             } catch (IOException | ArrayIndexOutOfBoundsException e) {
-                return Response.status(400).entity("Incorrect files").build();
+                return Response.status(400).entity("One of more files are not correct").build();
                 //e.printStackTrace();
             }
             int bestSol = 0;
