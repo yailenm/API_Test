@@ -101,8 +101,8 @@ public class ServiceRescheduleMoreTime {
              solution = reschedule ? new File(String.format("%s/solution_copy.tmp", UPLOAD_FOLDER))
                 : new File(String.format("%s/solution.tmp", UPLOAD_FOLDER)); //Read before solution
 
-        targetFile[0] = new File(String.format("%s/targetFile.txt", UPLOAD_FOLDER));
-        targetFile[1] = new File(String.format("%s/targetFile2.txt", UPLOAD_FOLDER));
+            targetFile[0] = new File(String.format("%s/targetFile.txt", UPLOAD_FOLDER));
+            targetFile[1] = new File(String.format("%s/targetFile2.txt", UPLOAD_FOLDER));
 
             if (!reschedule && solution.exists()) {
                 File solutionCopy = new File(String.format("%s/solution_copy.tmp", UPLOAD_FOLDER)); //crear copia de la solution para reschedule
@@ -177,10 +177,7 @@ public class ServiceRescheduleMoreTime {
             //System.out.println(" job "+opNoModify.get(i).GetJob()+" op "+opNoModify.get(i).GetID()+" name "+ opNoModify.get(i).name+" Ma "+opNoModify.get(i).Ma);
             //time of machines
             //if (operation.end_time > ql.Machines[operation.Ma].timeReSchedule)
-            if (operation.end_time > currentTime)
-                ql.Machines[operation.Ma].timeReSchedule = operation.end_time;
-            else
-                ql.Machines[operation.Ma].timeReSchedule = currentTime;
+            ql.Machines[operation.Ma].timeReSchedule = Math.max(operation.end_time, currentTime);
 
             //time of zones
             String job_operation_machine = "" + operation.GetJob() + operation.GetID() + operation.Ma;
