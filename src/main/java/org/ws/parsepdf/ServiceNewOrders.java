@@ -49,8 +49,6 @@ public class ServiceNewOrders {
             //Copy new files on server
             targetFile[0] = new File(String.format("%s/constraints_reschedule.txt", UPLOAD_FOLDER));
             targetFile[1] = new File(String.format("%s/timeRecordings_reschedule.txt", UPLOAD_FOLDER));
-            File solution = new File(String.format("%s/solution.tmp", UPLOAD_FOLDER));
-
 
                 boolean read = readSolutionFile(iter,reschedule);//read solution file, constraints and time recordings
                 if (read) {
@@ -64,16 +62,15 @@ public class ServiceNewOrders {
                     }
                     try {
                         ql.ExecuteReSchedule();
+                        ql.fusionFiles();
                     } catch (FileNotFoundException | CloneNotSupportedException e1) {
                         e1.printStackTrace();
                     } // TODO Auto-generated catch block
-                    return Response.status(200).entity("OK").build();
+                    File solution1 = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
+                    return Response.status(200).entity(solution1).build();
                 }else
-                    return Response.status(400).entity("Files don't exist on server").build();
+                    return Response.status(400).entity("Files don't exist on server").build();//no se ha corrido newOrders before.
                 // FileUtils.copyInputStreamToFile(uploadedInputStream, targetFile);
-
-
-
         } else {
             return Response.status(400).entity("You must sent all the requirement parameters").build();
         }
@@ -135,7 +132,7 @@ public class ServiceNewOrders {
         ArrayList<Operation> opNoModify = new ArrayList<>();
         for (int i = 0; i < ql.Jobs.length; i++) {
             for (int j = 0; j < ql.Jobs[i].operations.size(); j++) {
-                System.out.println("job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
+                //System.out.println("job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
                 //Si empieza antes que tiempo de llegada de los nuevos products
                 if (ql.Jobs[i].operations.get(j).initial_time <= currentTime) {
                     opNoModify.add(ql.Jobs[i].operations.get(j));
@@ -164,7 +161,9 @@ public class ServiceNewOrders {
 
             //operation para empezar re-schedule
             ql.Jobs[operation.GetJob()].opStart = operation.GetID() + 1;
-            ql.Jobs[operation.GetJob()].temp_endtime = operation.end_time;;
+            //System.out.println(" job "+operation.GetJob()+" opStart "+ql.Jobs[operation.GetJob()].opStart);
+            ql.Jobs[operation.GetJob()].temp_endtime = operation.end_time;
+            ql.Jobs[operation.GetJob()].finished = (ql.Jobs[operation.GetJob()].opStart >= ql.Jobs[operation.GetJob()].operations.size())?true:false;
         }
     }
 }

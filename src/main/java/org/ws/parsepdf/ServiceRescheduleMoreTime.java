@@ -191,6 +191,7 @@ public class ServiceRescheduleMoreTime {
             //operation para empezar re-schedule
             ql.Jobs[operation.GetJob()].opStart = operation.GetID() + 1;
             ql.Jobs[operation.GetJob()].temp_endtime = operation.end_time;
+            ql.Jobs[operation.GetJob()].finished = (ql.Jobs[operation.GetJob()].opStart >= ql.Jobs[operation.GetJob()].operations.size())?true:false;
         }
     }
 

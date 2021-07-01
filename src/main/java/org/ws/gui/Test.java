@@ -37,10 +37,15 @@ public class Test {
         instance.machines = new MachineGUI[instance.numMachines];
         //System.out.println("num machine "+instance.numMachines);
         MachineGUI M;
-        
+        int jj = 0;int prevJobId =0;
         while((line = file.readLine()) != null) {
             String[] numbers = line.split("\t");
-            int jobId = Integer.valueOf(numbers[0]);
+           // int jobId = Integer.valueOf(numbers[0]);
+            if(prevJobId != Integer.valueOf(numbers[0])){
+                prevJobId = Integer.valueOf(numbers[0]);
+                jj++;
+            }
+            int jobId = jj;
             int opId = Integer.valueOf(numbers[1]);
             int machineId = Integer.valueOf(numbers[3]);
             String opName = String.valueOf(numbers[2]);
