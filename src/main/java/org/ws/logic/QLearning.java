@@ -10,11 +10,11 @@ import java.util.*;
 
 public class QLearning {
 
-	private double LearningRate;
-	private double DiscountFactor;
-	private int iterations;
-	private double epsilon;
-	private String filename;
+	private final double LearningRate;
+	private final double DiscountFactor;
+	private final int iterations;
+	private final double epsilon;
+	private final String filename;
 	private int njobs, nmachines, navg_op, njobsNew;
 	public Job[] Jobs;
 	public Zone[] zone;//new
@@ -29,10 +29,10 @@ public class QLearning {
 	public LinkedList<Operation> HabOperationList;
 
 	String UPLOAD_FOLDER = System.getProperty("java.io.tmpdir") + "/uploaded";
-	private final Hashtable<String, Integer> actions = new Hashtable<String, Integer>();
+	private final Hashtable<String, Integer> actions = new Hashtable<>();
 	public int[] jobsInExecute = new int[2];
 
-	public QLearning(File[] file, double LearningRate, double DiscountFactor, int cycles, double epsilon) throws FileNotFoundException {
+	public QLearning(File[] file, double LearningRate, double DiscountFactor, int cycles, double epsilon){
 		this.LearningRate = LearningRate;
 		this.DiscountFactor = DiscountFactor;
 		this.epsilon = epsilon;
@@ -42,8 +42,6 @@ public class QLearning {
 		OrderedList = new LinkedList<>();
 		FullOperationList = new LinkedList<>();
 		HabOperationList = new LinkedList<>();
-		//SolutionFileQV=new File("Solutions/Mine/QV-" + filename + ".txt");
-		//pwQV = new PrintWriter(SolutionFileQV);
 	}
 
 
@@ -144,7 +142,7 @@ public class QLearning {
 			for (int j = 0; j < njobs; j++) {
 				if (i == 0) {
 					Jobs[j] = new Job(j);
-					Jobs[j].operations = new ArrayList<Operation>();
+					Jobs[j].operations = new ArrayList<>();
 					//	System.out.println(a1.readLine());// read product
 					s = a1.readLine();// read product
 					//System.out.println(s);
@@ -185,7 +183,7 @@ public class QLearning {
 						//System.out.println(s1);
 						cadArray1 = s1.split("[ \t]+");
 						cadArray = cadArray1[0].split(",");
-						ArrayList<Integer> arrayTimes = new ArrayList<Integer>();// fill in with times > 0
+						ArrayList<Integer> arrayTimes = new ArrayList<>();// fill in with times > 0
 
 
 						for (String value : cadArray) {
@@ -243,7 +241,7 @@ public class QLearning {
 		//System.out.println(a.readLine()+" fa"); // reading line finishActionBefore
 
 		a.readLine();//white line
-		s = a.readLine();// reading line finishActionBefore
+		a.readLine();// reading line finishActionBefore
 		s = a.readLine();
 		//System.out.println(s.toString()+" 2");
 		char ch1 = '|';
@@ -289,7 +287,7 @@ public class QLearning {
 		return (((double) temp) / Math.pow(10, c));
 	}
 
-	public void SaveToFile(String FileName, int cmax) {
+	public void SaveToFile(int cmax) {
 		PrintWriter pw;
 		//String UPLOAD_FOLDER = System.getProperty("java.io.tmpdir") + "/uploaded";
 		//String PathSol = "Solutions/Mine/Test.txt";
@@ -543,22 +541,18 @@ public class QLearning {
 	}
 
 	public boolean AllJobsFinished(Job[] Jobs) {
-		boolean flag = true;
-
 		for (int b = 0; b < njobs; b++)
 			if (!Jobs[b].finished)
-				return flag = false;
-
-		return flag;
+				return false;
+		return true;
 	}
 
 
 	public void ProcessNonDelay(double alpha, double gamma, int iter) throws CloneNotSupportedException {
 		boolean finished = false;
-		Operation op_selected = null;
-		Operation last_op = null;
-		LinkedList<Machine> Working = new LinkedList<Machine>();
-		//int counter = 0;
+		Operation op_selected;
+		Operation last_op;
+		LinkedList<Machine> Working = new LinkedList<>();
 
 		while (!finished) {
 			//	counter++;
@@ -641,7 +635,7 @@ public class QLearning {
 
 
 	public double GetMaxNextQV(Operation op) {
-		double max = 0, ch2;
+		double max, ch2;
 		//buscar el maximo entre las operaciones que se quedan en esta cola y las de la cola de la proxima op de ese job
 		double ch1 = Machines[op.Ma].MaxQVQueue();
 		//chequear que no sea la ultima operacion de ese Job
@@ -657,7 +651,7 @@ public class QLearning {
 
 
 	public double GetMinNextQV(Operation op) {
-		double min = 0, ch2;
+		double min, ch2;
 		//buscar el maximo entre las operaciones que se quedan en esta cola y las de la cola de la proxima op de ese job
 		double ch1 = Machines[op.Ma].MinQVQueue();
 		//chequear que no sea la ultima operacion de ese Job
@@ -971,13 +965,13 @@ public class QLearning {
 			//	System.out.println("n= "+t+" temp_endtime "+ Jobs[OrderedList.get(t).GetJob()].temp_endtime);
 			int min_initial_j = Jobs[operation.GetJob()].temp_endtime;
 			//int min_initial_j = 0;
-			int min_end = 0, min_initial = 0, index = 0;
+			int min_end, min_initial, index;
 			if (reschedule && operation.GetID() == Jobs[operation.GetJob()].opStart) {
 				min_initial_j = Jobs[operation.GetJob()].operations.get(Jobs[operation.GetJob()].opStart).end_time;
 			}
 			//ArrayList<Integer> arrayZone = new ArrayList<Integer>();
-			String array = "";
-			String finalArray = "";
+			String array;
+			String finalArray;
 			//System.out.println("job "+OrderedList.get(t).GetJob()+" op "+OrderedList.get(t).GetID()+" name "+OrderedList.get(t).name);
 			if (operation.back2back_before > -1) {
 				int beforeMachine = Jobs[operation.GetJob()].operations.get(operation.back2back_before).Ma;
@@ -1157,7 +1151,6 @@ public class QLearning {
 			//PrintRoutes();
 			//improvement = true;	
 			//System.out.println("_______");
-			R = 0;
 			if (n == 0 || n == Math.abs(iterations / 10 * temp)) {
 				RestartTimesForOnce();
 				SearchRoutesVersion2(njobs);
@@ -1181,12 +1174,12 @@ public class QLearning {
 			//Variante 2 ModeOptimization
 			if (n == 0) {
 				BestSol = cmax;
-				SaveToFile(file_saved, BestSol);
+				SaveToFile(BestSol);
 			}
 			if (cmax < BestSol) {
 				//	System.out.println("encontre mejor sol");
 				BestSol = cmax;
-				SaveToFile(file_saved, BestSol);
+				SaveToFile(BestSol);
 				R = 1;
 				//UpdateQValuesProcedure(alpha, gamma, R);
 			} else {
@@ -1202,41 +1195,7 @@ public class QLearning {
 
 
 		System.out.println("The makespan is: " + BestSol);
-				
-		/*Instance instance;
-		try {
-			//System.out.println(file_saved.toString());
-			instance = new Instance("Schedule", 55, file_saved,nmachines);
-			Pair<Instance,Schedule> result = GUI.Test.loadSchedule(instance,this);
-			List<Schedule> s = new ArrayList<Schedule>(); 
-			ArrayList<OperationAllocation> newAllocs = new ArrayList<OperationAllocation>();
-			for (int i=0; i < result.getSecond().getAllocations().size(); i++) {
-				OperationGUI operation = result.getSecond().getAllocations().get(i).getOperation();
-				MachineGUI machine = result.getSecond().getAllocations().get(i).getMachine();
-				int startTime = result.getSecond().getAllocations().get(i).getStartTime();
-				int endTime = result.getSecond().getAllocations().get(i).getEndTime();
-				boolean border = result.getSecond().getAllocations().get(i).getBorder();
-				
-				newAllocs.add(new OperationAllocation(operation, machine, startTime, endTime,border));
-				
-			}
-			
-			Schedule otro = new Schedule (newAllocs);	
 
-			s.add(otro);
-			new File(file_saved);
-			
-			//System.out.println("The fixBton size is: "+fixBoton.size());
-			ScheduleFrame sf = new ScheduleFrame(result.getFirst(), result.getSecond()," Optimized using Q-Learning",this,false);
-			//sf.saveSchedule(filename);
-			sf.setVisible(true);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-
-
-		// end new add
 
 		Date date1 = new Date();
 		long fin = date1.getTime();
@@ -1275,7 +1234,6 @@ public class QLearning {
 		for (int n = 0; n < this.iterations; n++) {
 			//for (int n = 0; n < 1; n++){
 			//System.out.println("ooooo");	
-			R = 0;
 			/*RestartTimesForOnceReSchedule();
 			ExecuteModeOptimizationReSchedule();*/
 
@@ -1319,12 +1277,12 @@ public class QLearning {
 			//Variante 2 ModeOptimization
 			if (n == 0) {
 				BestSol = cmax;
-				SaveToFile(file_saved, BestSol);
+				SaveToFile(BestSol);
 			}
 			if (cmax < BestSol) {
 				//System.out.println("encontre mejor sol");
 				BestSol = cmax;
-				SaveToFile(file_saved, BestSol);
+				SaveToFile(BestSol);
 				R = 1;
 				//UpdateQValuesProcedure(alpha, gamma, R);
 			} else {
@@ -1412,8 +1370,8 @@ public class QLearning {
 			}*/
 
 		}
-		for (int i = 0; i < zone.length; i++) {
-			zone[i].time = zone[i].timeReScheduleZone;
+		for (Zone value : zone) {
+			value.time = value.timeReScheduleZone;
 		}
 		//FullOperationList.clear();
 	}
@@ -1462,11 +1420,10 @@ public class QLearning {
 		for (int m = 0; m < nmachines; m++)
 			Machines[m].Op_executed_Optim.clear();
 
-		for (int m = 0; m < zone.length; m++)
-			zone[m].time = zone[m].timeReScheduleZone;
+		for (Zone value : zone) value.time = value.timeReScheduleZone;
 
-		for (int m = 0; m < Machines.length; m++) {
-			Machines[m].time = Machines[m].timeReSchedule;
+		for (Machine machine : Machines) {
+			machine.time = machine.timeReSchedule;
 			//System.out.println("machine "+m+" time "+Machines[m].timeReSchedule);
 		}
 	}
@@ -1474,15 +1431,15 @@ public class QLearning {
 	//Methods for new products
 
 	public void ReadDataNewProducts(File[] file) throws IOException {
-		System.out.println("Name " + file[0].getName().toString() + " " + file[1].getName());
+		System.out.println("Name " + file[0].getName() + " " + file[1].getName());
 
 
-		String s = new String();
+		String s;
 		FileReader f;
 
 		//verify if file[1] is timeRecordings
 		//File instance2 = file[1];
-		String s1 = new String();
+		String s1;
 		FileReader f1 = new FileReader(file[1]);
 		BufferedReader a1 = new BufferedReader(f1);
 		s = a1.readLine();
@@ -1504,7 +1461,7 @@ public class QLearning {
 		a.readLine();
 
 		// operations
-		s = a.readLine();
+		a.readLine();
 		//	int countOperations = s.split(",").length;
 		//	System.out.println(" size "+countOperations);
 
@@ -1556,7 +1513,7 @@ public class QLearning {
 			for (int j = Jobs.length - njobs; j < Jobs.length; j++) {
 				if (i == 0) {
 					Jobs[j] = new Job(j);
-					Jobs[j].operations = new ArrayList<Operation>();
+					Jobs[j].operations = new ArrayList<>();
 					Jobs[j].opStart = 0;
 					//a1.readLine();// read [ or white space
 					a1.readLine();// read product
@@ -1586,7 +1543,7 @@ public class QLearning {
 						//job_operation_machine[2] = l; //machine
 						String job_operation_machine = "" + j + k + l;
 						//System.out.println("ppp "+job_operation_machine);
-						zone_occupied = (cadArray[l].equals("0")) ? false : true;
+						zone_occupied = !cadArray[l].equals("0");
 						zone[i].job_operation_occupied.put(job_operation_machine, zone_occupied);//fill in Hashtable
 						//System.out.println(zone[i].job_operation_occupied.get(job_operation_machine));
 						// System.out.println("job "+ j+" operation "+k+" machine "+l+" zone occupied "+ zone_occupied+" boolean ");
@@ -1600,11 +1557,11 @@ public class QLearning {
 						ArrayList<Integer> arrayTimes = new ArrayList<Integer>();// fill in with times > 0
 
 
-						for (int k2 = 0; k2 < cadArray.length; k2++) {
+						for (String value : cadArray) {
 							//System.out.println(" cadArray "+ cadArray[k2]);
-							if (!cadArray[k2].equals("0")) {
+							if (!value.equals("0")) {
 								//System.out.println(" izq "+ cadArray[k2]);
-								arrayTimes.add(Integer.parseInt(cadArray[k2]));
+								arrayTimes.add(Integer.parseInt(value));
 							}
 						}
 
@@ -1630,7 +1587,7 @@ public class QLearning {
 					k++;
 					s = a.readLine();
 				}
-				max_num_operations = (max_num_operations < k) ? (k) : max_num_operations;
+				max_num_operations = Math.max(max_num_operations, k);
 				if (i == 0)
 					a1.readLine();
 			}
@@ -1738,9 +1695,6 @@ public class QLearning {
 			String []cadArray = cadArray2[1].split(";");
 			int cantJobOldFile = Integer.parseInt(cadArray[0]);
 			s = a_reschedule.readLine();//cantidad prod primer new file
-			cadArray1 = s.split("=");
-			cadArray2 = cadArray1[1].split("[..]+");
-			cadArray = cadArray2[1].split(";");
 			//int cantJobNewFile = Integer.parseInt(cadArray[0]);
 			int prod = 0;
 			for (int i = 0; i < njobs; i++){
@@ -1783,7 +1737,6 @@ public class QLearning {
 					s = (j < cantJobOldFile) ? a.readLine() : a_reschedule.readLine();//First operation
 					s1 = (j < cantJobOldFile && i == 0) ? a1.readLine() : a1_reschedule.readLine();//First operation
 
-					int k = 0; //number of operations
 					char ch1 = ']';
 					while (!s.equals("") && s.charAt(0) != ch1) {
 						if (Jobs[j].opStart < Jobs[j].operations.size()) {

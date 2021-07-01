@@ -38,24 +38,18 @@ public class JobGUI {
 	}
 	
 	public JobGUI(int id, 
-	        int[] stagesVisited, 
-	        int[] eligibleMachines, 
-	        int[] processingTimes, 
-	        int[] predecessors,
+	        int[] stagesVisited,
+	        int[] processingTimes,
 	        int[] slacks) {
 		this.id = id;
-		
-//		this.stagesVisited = stagesVisited;
-//		this.eligibleMachines = eligibleMachines;
+
 		this.processingTimes = processingTimes;
-//		this.predecessors = predecessors;
 		this.slacks = slacks;
 		
 		this.operations = new OperationGUI[stagesVisited.length];
-		for (int i = 0; i < stagesVisited.length; i++) {
-//			if (isStageVisited(i)) {
-				operations[i] = new OperationGUI(i, id, 0, 0,null,-1,-1);
-//			}  
-		}
+		for (int i = 0; i < stagesVisited.length; i++)
+			operations[i] = new OperationGUI(i, id, 0, 0,null,-1,-1);
+
+
 	}
 }

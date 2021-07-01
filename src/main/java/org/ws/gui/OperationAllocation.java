@@ -16,15 +16,9 @@ public class OperationAllocation {
 	
 	public int startTime;
 	
-	public int oldStartTime;
-	
 	public int endTime;
 	
-	public int oldEndTime;
-	
 	public boolean border;
-	
-	//public int back2back_before = -1;
 
 	/**
 	 * Creates an OperationAllocation object with the specified values.
@@ -143,7 +137,6 @@ public class OperationAllocation {
     }
 
 	public boolean getBorder() {
-		// TODO Auto-generated method stub
 		return border;
 	}
 	

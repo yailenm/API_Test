@@ -20,12 +20,7 @@ public class Operation implements Cloneable{
 	
 	//time it takes, corresponding to the machines
 	public int[] times;
-	
-	// 1/p_times
-	public double[] oamk;
-	
-	public double[] probabilities;
-	
+
 	//The machine that will execute it, the index in the array(not the real one)
 	public Machine M;
 	public int Ma;
@@ -35,7 +30,6 @@ public class Operation implements Cloneable{
 	
 	//indice temporal para el Mode Optimization Procedure, es el indice de la maquina en machines
 	public int temp_index;
-	public int testing = 0;
 	public int temp_initial, temp_end;
 	
 	public double[] QV;
@@ -68,7 +62,7 @@ public class Operation implements Cloneable{
 	
 		
 	public int MachineSelection(double epsilon, Machine[] machs, int j_end_time, ArrayList<Operation> op){
-		int min = 0;		
+		int min;
 		int mindex = 0;
 		//if es backtoback escoger directo
 		if (this.back2back_before != -1) {
@@ -108,11 +102,11 @@ public class Operation implements Cloneable{
 				mindex = rounded;
 					//end_time += times[mindex];
 				//System.out.println("machs "+machs[machines[mindex]-1].GetID());
-				int minGlobal =0;
+				int minGlobal;
 				if(machs[machines[mindex]-1].Op_assigned.size() == 0)
 					minGlobal = machs[machines[mindex]-1].time;
 				else
-					 minGlobal = (j_end_time > machs[machines[mindex]-1].Op_assigned.getLast().end_time) ? j_end_time : machs[machines[mindex]-1].Op_assigned.getLast().end_time;
+					 minGlobal = Math.max(j_end_time, machs[machines[mindex] - 1].Op_assigned.getLast().end_time);
 				// minGlobal = (machs[machines[mindex]-1].Op_assigned.size()==0 ||j_end_time > machs[machines[mindex]-1].Op_assigned.getLast().end_time) ? j_end_time : machs[machines[mindex]-1].Op_assigned.getLast().end_time;
 					end_time = minGlobal + times[mindex];
 					temp_end= minGlobal + times[mindex];

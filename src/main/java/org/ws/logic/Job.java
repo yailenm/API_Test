@@ -10,12 +10,11 @@ public class Job implements Cloneable{
 	public double[][] QValues;
 	public int j_end_time;
 	public boolean finished = false;
-	public int jfulltime = 0;
 	public int time_remaining;
 	public int temp_endtime;
 	public int aux_end = 0;	
 	
-	//public int limitOpFix = 0;
+
 	public int opStart = 0; // operation para empezar el re-schedule
 	
 	
@@ -32,7 +31,7 @@ public class Job implements Cloneable{
 	public Job clone() throws CloneNotSupportedException {
 		 	Job jj = (Job) super.clone();
 		 	jj.ToTest = (Operation) ToTest.clone();
-		 	jj.operations = new ArrayList<Operation>();
+		 	jj.operations = new ArrayList<>();
 		 	for (int a=0; a < this.operations.size(); a++)
 		 		jj.operations.set(a,(Operation) operations.get(a).clone());
 		 	return jj;
@@ -40,14 +39,14 @@ public class Job implements Cloneable{
 
 	
 	public void PrintRoute(){
-		for (int m=0; m < operations.size(); m++)
-			System.out.print((operations.get(m).Ma+1)+ "	");
+		for (Operation operation : operations)
+			System.out.print((operation.Ma + 1) + "	");
 		System.out.println();
 	}
 
 	public void PrintQV(){
-		for (int m=0; m < operations.size(); m++)
-			operations.get(m).PrintQV();
+		for (Operation operation : operations)
+			operation.PrintQV();
 		System.out.println();
 	}
 	

@@ -9,21 +9,18 @@ import java.util.List;
 
 
 public class Instance {
-	private String name;
-    public  int numMachines;  
-    public  int numJobs;
+	private final String name;
+    public  int numMachines;
     public  MachineGUI[] machines;
     public int DueDate;
     public String SolFile; 
     public File loadedFile;
-    public String tardiness;
     public LinkedList<Perturbation> PerturbationList;
     
     public Instance(String fileName, int duedate, String solution, LinkedList<Perturbation> PertList, int nmachines) throws IOException {
        name = fileName;
        DueDate = duedate;
        SolFile = solution;
-       //SolFile = solution.getName();
        loadedFile = new File(solution);
        PerturbationList = PertList;
        machines = new MachineGUI[nmachines];
@@ -33,7 +30,6 @@ public class Instance {
         name = fileName;
         DueDate = duedate;
         SolFile = solution;
-        //SolFile = solution.getName();
         loadedFile = new File(solution);
         machines = new MachineGUI[nmachines];
      }

@@ -47,10 +47,10 @@ public class Schedule {
 	 * @param allocations the operation allocations making up this schedule.
 	 */
 	public Schedule(ArrayList<OperationAllocation> allocations) { 
-		this.allocations = new HashMap<OperationGUI,OperationAllocation>();
-		this.firstAvailableTime = new HashMap<MachineGUI,Integer>();
-		this.lastAllocatedJobs = new HashMap<MachineGUI,JobGUI>();
-		this.jobCompletionTimes = new HashMap<JobGUI,Integer>();
+		this.allocations = new HashMap<>();
+		this.firstAvailableTime = new HashMap<>();
+		this.lastAllocatedJobs = new HashMap<>();
+		this.jobCompletionTimes = new HashMap<>();
 		
 		int makespan = -1;
 		
@@ -105,7 +105,7 @@ public class Schedule {
 	 * @return the list of operation allocations.
 	 */
 	public ArrayList<OperationAllocation> getAllocations() {
-	    return new ArrayList<OperationAllocation>(allocations.values());
+	    return new ArrayList<>(allocations.values());
 	}
 	
 	/**

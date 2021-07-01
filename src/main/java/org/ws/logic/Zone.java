@@ -5,7 +5,7 @@ import java.util.Hashtable;
 public class Zone {	
 	public int id_zone;	// start in 1 
 	//int[] job,operation,machine
-	public Hashtable<String, Boolean> job_operation_occupied = new Hashtable<String, Boolean>();
+	public Hashtable<String, Boolean> job_operation_occupied = new Hashtable<>();
 	public int time = 0;
 	
 	public int timeReScheduleZone = 0;

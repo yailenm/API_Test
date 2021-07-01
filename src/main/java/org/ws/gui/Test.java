@@ -24,7 +24,7 @@ public class Test {
         
         BufferedReader file = new BufferedReader(new FileReader(instance.loadedFile));
 
-        ArrayList<OperationAllocation> allocs = new ArrayList<OperationAllocation>();
+        ArrayList<OperationAllocation> allocs = new ArrayList<>();
 
         //This is the makespan
         file.readLine();
@@ -33,7 +33,7 @@ public class Test {
         //instance.tardiness = file.readLine();
         
         //this is the number of machines, replacing the tardiness
-        instance.numMachines = Integer.valueOf(file.readLine());
+        instance.numMachines = Integer.parseInt(file.readLine());
         instance.machines = new MachineGUI[instance.numMachines];
         //System.out.println("num machine "+instance.numMachines);
         MachineGUI M;
@@ -41,19 +41,19 @@ public class Test {
         while((line = file.readLine()) != null) {
             String[] numbers = line.split("\t");
            // int jobId = Integer.valueOf(numbers[0]);
-            if(prevJobId != Integer.valueOf(numbers[0])){
-                prevJobId = Integer.valueOf(numbers[0]);
+            if(prevJobId != Integer.parseInt(numbers[0])){
+                prevJobId = Integer.parseInt(numbers[0]);
                 jj++;
             }
             int jobId = jj;
-            int opId = Integer.valueOf(numbers[1]);
-            int machineId = Integer.valueOf(numbers[3]);
+            int opId = Integer.parseInt(numbers[1]);
+            int machineId = Integer.parseInt(numbers[3]);
             String opName = String.valueOf(numbers[2]);
-            int start = Integer.valueOf(numbers[4]);
-            int end = Integer.valueOf(numbers[5]);
-            int backToBackBefore = Integer.valueOf(numbers[6]);
-            int operation_precedent = Integer.valueOf(numbers[7]);
-            int slack = Integer.valueOf(numbers[8]);
+            int start = Integer.parseInt(numbers[4]);
+            int end = Integer.parseInt(numbers[5]);
+            int backToBackBefore = Integer.parseInt(numbers[6]);
+            int operation_precedent = Integer.parseInt(numbers[7]);
+            int slack = Integer.parseInt(numbers[8]);
             if (ql != null) {
 				ql.Jobs[jobId].operations.get(opId).initial_time = start;
 				ql.Jobs[jobId].operations.get(opId).end_time = end;
@@ -93,7 +93,7 @@ public class Test {
         //System.out.println("ctdad de maquinas" + instance.machines.length);
         file.close();
         
-        return new PairQL<Instance,Schedule>(instance,new Schedule(allocs));
+        return new PairQL<>(instance, new Schedule(allocs));
     }
 
 	
