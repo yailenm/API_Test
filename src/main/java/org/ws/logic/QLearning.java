@@ -638,10 +638,11 @@ public class QLearning {
 		double max, ch2;
 		//buscar el maximo entre las operaciones que se quedan en esta cola y las de la cola de la proxima op de ese job
 		double ch1 = Machines[op.Ma].MaxQVQueue();
+		//System.out.println("op length "+Jobs[op.GetJob()].operations.size()+" job "+Jobs[op.GetJob()].GetID()+" op "+Jobs[op.GetJob()].operations.get(op.GetID() + 1).GetID());
 		//chequear que no sea la ultima operacion de ese Job
-		if (op.GetID() < Jobs[op.GetJob()].operations.size() - 1)
-			ch2 = Jobs[op.GetJob()].operations.get(op.GetID() + 1).M.MaxQVQueue();
-		else
+		if (op.GetID() < Jobs[op.GetJob()].operations.size() - 1) {
+			ch2 = (Jobs[op.GetJob()].operations.get(op.GetID() + 1).M == null)?0:Jobs[op.GetJob()].operations.get(op.GetID() + 1).M.MaxQVQueue();
+		}else
 			ch2 = 0;
 
 		max = Math.max(ch1, ch2);
@@ -1224,11 +1225,8 @@ public class QLearning {
 		/*for (int i = 0; i < Jobs.length; i++) {
 			for (int j = 0; j < Jobs[i].operations.size(); j++) {
 				System.out.println("job "+i+" op "+Jobs[i].operations.get(j).GetID()+" start " +Jobs[i].operations.get(j).initial_time+" end "+Jobs[i].operations.get(j).end_time);
-				
-				
+
 			}
-			
-			
 		}*/
 		int temp = 0;
 		for (int n = 0; n < this.iterations; n++) {
