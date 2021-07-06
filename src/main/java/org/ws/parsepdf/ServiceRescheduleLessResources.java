@@ -8,6 +8,7 @@ package org.ws.parsepdf;
 import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.io.FileUtils;
 import org.ws.gui.Test;
+import org.ws.logic.Job;
 import org.ws.logic.Operation;
 import org.ws.logic.QLearning;
 
@@ -58,10 +59,10 @@ public class ServiceRescheduleLessResources {
                 File solution1 = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
                 return Response.status(200).entity(solution1).build();
             }else{
-                return Response.status(400).entity("Files don't exist on server").build();
+                return Response.status(400).entity("There are no previous schedules").build();
             }
         }else
-            return Response.status(400).entity("You must sent correctly all the requirement parameters").build();
+            return Response.status(400).entity("Missing parameters").build();
 
     }
 
@@ -120,28 +121,28 @@ public class ServiceRescheduleLessResources {
     }
 
     private void startTimes(int machine, int currentTime) {
-       // System.out.println("start Times");
+       System.out.println("start Times machine "+machine);
         //Poner alguna forma de saber q la op anterior no fue añadida....y asi no añadir la prox aunq este en otra machine y con buen time
         ArrayList<Operation> opNoModify = new ArrayList<>();
         for (int i = 0; i < ql.Jobs.length; i++) {
             for (int j = 0; j < ql.Jobs[i].operations.size(); j++) {
-                //System.out.println("job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
+                System.out.println("job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID()+" Ma "+ ql.Jobs[i].operations.get(j).Ma);
                 if (ql.Jobs[i].operations.get(j).end_time <= currentTime ||
                         (ql.Jobs[i].operations.get(j).initial_time < currentTime && ql.Jobs[i].operations.get(j).Ma != machine)) {
                     opNoModify.add(ql.Jobs[i].operations.get(j));
-                    //System.out.println("add 1 job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
+                    System.out.println("add 1 job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
                 }else if (ql.Jobs[i].operations.get(j).back2back_before != -1){ //si has back to back
                     //si la op back2back_before starts before current time y isn't the broken machine
                     if (ql.Jobs[i].operations.get(ql.Jobs[i].operations.get(j).back2back_before).initial_time <= currentTime
                             && ql.Jobs[i].operations.get(j).Ma != machine) {
                         opNoModify.add(ql.Jobs[i].operations.get(j));
-                        //System.out.println("add 2 job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
+                        System.out.println("add 2 job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
                     }
                     //si la op back2back_before ends before current time y it's the broken machine
                     if (ql.Jobs[i].operations.get(ql.Jobs[i].operations.get(j).back2back_before).end_time <= currentTime
                             && ql.Jobs[i].operations.get(j).Ma == machine) {
                          //quito la op del array
-                        //System.out.println("remove job "+opNoModify.get(opNoModify.size()-1).GetJob()+" op "+opNoModify.get(opNoModify.size()-1).GetID());
+                        System.out.println("remove job "+opNoModify.get(opNoModify.size()-1).GetJob()+" op "+opNoModify.get(opNoModify.size()-1).GetID());
                        opNoModify.remove(opNoModify.size()-1);
                         break;
                     }
@@ -170,7 +171,10 @@ public class ServiceRescheduleLessResources {
             ql.Jobs[operation.GetJob()].opStart = operation.GetID() + 1;
             //ql.Jobs[opNoModify.get(i).GetJob()].temp_endtime = opNoModify.get(i).end_time;
             ql.Jobs[operation.GetJob()].temp_endtime = currentTime;
-            ql.Jobs[operation.GetJob()].finished = (ql.Jobs[operation.GetJob()].opStart >= ql.Jobs[operation.GetJob()].operations.size())?true:false;
+            ql.Jobs[operation.GetJob()].finished = ql.Jobs[operation.GetJob()].opStart >= ql.Jobs[operation.GetJob()].operations.size();
+        }
+        for (Job j: ql.Jobs) {
+            System.out.println("job "+j.GetID()+" opStart "+j.opStart+" time "+j.operations.get(j.opStart-1).end_time);
         }
         //System.out.println(" job 0 opStart "+ ql.Jobs[0].opStart);
         //System.out.println(" job 1 opStart "+ ql.Jobs[1].opStart);

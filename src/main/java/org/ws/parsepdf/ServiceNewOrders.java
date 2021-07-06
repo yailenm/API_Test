@@ -18,10 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 
 @Path("/newOrders")
@@ -46,6 +43,7 @@ public class ServiceNewOrders {
             double epsi = 0.2;
 
             File [] targetFile = new File[2];
+
             //Copy new files on server
             targetFile[0] = new File(String.format("%s/constraints_reschedule.txt", UPLOAD_FOLDER));
             targetFile[1] = new File(String.format("%s/timeRecordings_reschedule.txt", UPLOAD_FOLDER));
@@ -53,12 +51,19 @@ public class ServiceNewOrders {
                 boolean read = readSolutionFile(iter,reschedule);//read solution file, constraints and time recordings
                 if (read) {
                     try {
-                        FileUtils.copyInputStreamToFile(constraints, targetFile[0]);
-                        FileUtils.copyInputStreamToFile(timeRecordings, targetFile[1]);
+                        String s = constraints.toString();
+                        //Check input files are in correct order
+                        if (s.charAt(0)=='%') {
+                            FileUtils.copyInputStreamToFile(constraints, targetFile[0]);
+                            FileUtils.copyInputStreamToFile(timeRecordings, targetFile[1]);
+                        }else {
+                            FileUtils.copyInputStreamToFile(timeRecordings, targetFile[0]);
+                            FileUtils.copyInputStreamToFile(constraints, targetFile[1]);
+                        }
                         startTimes(startTime);
                         ql.ReadDataNewProducts(targetFile);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (IOException | ArrayIndexOutOfBoundsException | NumberFormatException e) {
+                        return Response.status(400).entity("One or more files are not correct").build();
                     }
                     try {
                         ql.ExecuteReSchedule();
@@ -69,10 +74,10 @@ public class ServiceNewOrders {
                     File solution1 = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
                     return Response.status(200).entity(solution1).build();
                 }else
-                    return Response.status(400).entity("Files don't exist on server").build();//no se ha corrido newOrders before.
+                    return Response.status(400).entity("There are no previous schedules").build();//no se ha corrido newOrders before.
                 // FileUtils.copyInputStreamToFile(uploadedInputStream, targetFile);
         } else {
-            return Response.status(400).entity("You must sent all the requirement parameters").build();
+            return Response.status(400).entity("Missing parameters").build();
         }
     }
 
@@ -163,7 +168,8 @@ public class ServiceNewOrders {
             ql.Jobs[operation.GetJob()].opStart = operation.GetID() + 1;
             //System.out.println(" job "+operation.GetJob()+" opStart "+ql.Jobs[operation.GetJob()].opStart);
             ql.Jobs[operation.GetJob()].temp_endtime = operation.end_time;
-            ql.Jobs[operation.GetJob()].finished = (ql.Jobs[operation.GetJob()].opStart >= ql.Jobs[operation.GetJob()].operations.size())?true:false;
+            ql.Jobs[operation.GetJob()].finished = ql.Jobs[operation.GetJob()].opStart >= ql.Jobs[operation.GetJob()].operations.size();
+           // System.out.println(" job "+operation.GetJob()+" finished "+ql.Jobs[operation.GetJob()].finished);
         }
     }
 }

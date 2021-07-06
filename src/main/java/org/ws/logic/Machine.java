@@ -299,15 +299,15 @@ public class Machine implements Cloneable{
 				//if ((jobsInExecute[0] == 0 || op.GetJob() == jobsInExecute[0]-1) && op.GetJob() != jobsInExecute[1]-1) {//colocar el trabajo en la posicion 0 si no hay ninguno
 				if (jobsInExecute[0] == -1 && op.GetJob() != jobsInExecute[1]) {//colocar el trabajo en la posicion 0 si no hay ninguno
 					jobsInExecute[0] = op.GetJob();
-					//System.out.println(" coloque el trabajo en la posicion 0");
+					//System.out.println(" coloque el trabajo en la posicion 0 "+ op.GetJob());
 				}else if (jobsInExecute[1] == -1 && op.GetJob() != jobsInExecute[0]) {//colocar el trabajo en la posicion 1 si no hay ninguno
 					jobsInExecute[1] = op.GetJob();
-					//System.out.println(" coloque el trabajo en la posicion 1");
+					//System.out.println(" coloque el trabajo en la posicion 1 "+op.GetJob());
 				}else {
 					if(op.GetJob() != jobsInExecute[1] && op.GetJob() != jobsInExecute[0]){
 						flash = true;
-						Queue.remove(op);//eliminar la operacion que no pertece a ninguno de los trabajos q se estan ejecutando
-						//System.out.println(" elimine la op de la queue");
+						Queue.remove(op);//eliminar la operacion que no pertenece a ninguno de los trabajos q se estan ejecutando
+						//System.out.println(" elimine la op de la queue del job "+op.GetJob());
 						
 						if (Queue.isEmpty()) {
 							op = null;
@@ -347,6 +347,7 @@ public class Machine implements Cloneable{
 					//System.out.println("Busco el max entre la maq "+time+" time minTimePossible "+minTimePossible);
 					//op.initial_time = (minTimePossible > minTimePossible2) ? minTimePossible : minTimePossible2;
 					op.initial_time = Math.max(minTimePossible, time);
+					op.initial_time = Math.max(op.initial_time, Jobs[op.GetJob()].temp_endtime);
 					//System.out.println("Tiempo initial final "+op.initial_time);
 					time = op.initial_time + op.proc_time;
 					for (Integer integer : arrayZone) {//update zones
@@ -357,9 +358,12 @@ public class Machine implements Cloneable{
 					if (op.operation_precedent > -1) {//check precedent						
 						int time_precedent = Jobs[op.GetJob()].operations.get(op.operation_precedent).end_time;
 						op.initial_time = Math.max(time_precedent, time);
+						op.initial_time = Math.max(op.initial_time, Jobs[op.GetJob()].temp_endtime);
 						//System.out.println("Tiempo initial final "+op.initial_time);
-					}else
+					}else {
 						op.initial_time = time;
+						op.initial_time = Math.max(op.initial_time, Jobs[op.GetJob()].temp_endtime);
+					}
 					time = op.initial_time + op.proc_time;
 					//System.out.println("no ocupa zona lo pongo en el time de la machine. Time initial op "+op.initial_time+" time maquina "+time);
 				}

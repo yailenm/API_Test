@@ -65,8 +65,8 @@ public class FileUploadService {
             try {
                 ql = new QLearning(targetFile, LR, DF, iter, epsi);
                 ql.ReadData(targetFile);
-            } catch (IOException | ArrayIndexOutOfBoundsException e) {
-                return Response.status(400).entity("One of more files are not correct").build();
+            } catch (IOException | ArrayIndexOutOfBoundsException | NumberFormatException e) {
+                return Response.status(400).entity("One or more files are not correct").build();
                 //e.printStackTrace();
             }
             int bestSol = 0;
@@ -78,7 +78,7 @@ public class FileUploadService {
             File solution = new File(String.format("%s/schedule.txt", UPLOAD_FOLDER));
             return Response.status(200).entity(solution).build();
         }else{
-            return Response.status(400).entity("You must sent all the requirement parameters").build();
+            return Response.status(400).entity("Missing parameters").build();
         }
 
        /* if(uploadedInputStream != null && uploadedInputStream2 != null && passwd != null && iter > 0) {

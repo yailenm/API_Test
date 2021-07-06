@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Job implements Cloneable{
 	
 	private final int ID;
+	private int number;
 	public ArrayList <Operation> operations;
 	public Operation ToTest = new Operation(20,20,"lol");//review
 	public double[][] QValues;
@@ -18,15 +19,22 @@ public class Job implements Cloneable{
 	public int opStart = 0; // operation para empezar el re-schedule
 	
 	
-	public Job(int i){
+	public Job(int i, int number){
 		ID = i;
-		
+		this.number = number;
 	}
 
 	public int GetID(){
 		return ID;
 	}
-	
+
+	public int getNumber() {
+		return number;
+	}
+	public void setNumber(int number){
+		this.number = number;
+	}
+
 	@Override
 	public Job clone() throws CloneNotSupportedException {
 		 	Job jj = (Job) super.clone();
@@ -54,15 +62,18 @@ public class Job implements Cloneable{
 	public void Start(Machine[] machines){
 		//System.out.println("Machine to activate: " + operations.get(0).Ma+ " Job "+operations.get(0).GetJob()+" op "+operations.get(0).GetID());
 		boolean insert = true;
-		int index = (opStart != -1)?opStart:0;
+		//int index = (opStart != -1)?opStart:0;
+		int index = opStart;
 		if (opStart < operations.size()) {
 			for (int i = 0; i < machines[operations.get(index).Ma].Queue.size(); i++) {
 				if(machines[operations.get(index).Ma].Queue.get(i).equals(operations.get(index))) {
 					insert = false;
 				}
 			}
-			if(insert)
+			if(insert) {
 				machines[operations.get(index).Ma].Queue.add(operations.get(index));
+				//System.out.println("Job add "+ID);
+			}
 		}
 		
 	}

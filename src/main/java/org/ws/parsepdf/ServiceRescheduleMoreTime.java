@@ -41,6 +41,7 @@ public class ServiceRescheduleMoreTime {
     public Response uploadFile(@FormDataParam("resource") String resource, @FormDataParam("currentTime") int currentTime, @FormDataParam("timeOperation") int timeOperation,
                                @FormDataParam("reschedule") boolean reschedule, @FormDataParam("password") String passwd, @FormDataParam("iter") int iter) {
       // System.out.println( p.getValue());
+        //revisar que no pinta la op que extendio, revisar cuando le paso el time current menor del q existe
         if(resource != null && currentTime > -1 && "12345".equals(passwd) && iter > 0) {
             boolean solution = readSolutionFile(iter, reschedule);//read solution file, constraints and time recordings
             if (solution) {
@@ -69,10 +70,10 @@ public class ServiceRescheduleMoreTime {
                 }else
                     return Response.status(400).entity("You should enter a duration longer than the previous one "+ql.Jobs[job].operations.get(op).proc_time).build();
             } else {
-                return Response.status(400).entity("Files don't exist on server").build();
+                return Response.status(400).entity("There are no previous schedules").build();
             }
         }else
-            return Response.status(400).entity("You must sent correctly all the requirement parameters").build();
+            return Response.status(400).entity("Missing parameters").build();
        // return Response.status(200).entity("OK").build();
 
     }
@@ -148,7 +149,6 @@ public class ServiceRescheduleMoreTime {
                     if (ql.Jobs[i].operations.get(j).back2back_before != -1 && !(i == operationFix.GetJob() && j == operationFix.GetID())) {
                         //si la operacion empieza despues de q acabe la op fija y su back to back empieza antes que acabe la fija
                         if (ql.Jobs[i].operations.get(j).initial_time >= operationFix.end_time && ql.Jobs[i].operations.get(j-1).initial_time < operationFix.end_time) {
-                            //quito la op del array
                             ql.Jobs[i].operations.get(j).initial_time += (newTime + operationFix.proc_time);
                             ql.Jobs[i].operations.get(j).end_time += (newTime + operationFix.proc_time);
                             //opNoModify.

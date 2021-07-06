@@ -47,7 +47,7 @@ public class QLearning {
 
 
 	@SuppressWarnings("resource")
-	public void ReadData(File[] file) throws IOException, NullPointerException, ArrayIndexOutOfBoundsException {
+	public void ReadData(File[] file) throws IOException, NullPointerException, ArrayIndexOutOfBoundsException,NumberFormatException {
 		//System.out.println("Name "+file[0].getName().toString()+" "+file[1].getName());
 
 
@@ -141,7 +141,7 @@ public class QLearning {
 			//count products
 			for (int j = 0; j < njobs; j++) {
 				if (i == 0) {
-					Jobs[j] = new Job(j);
+					Jobs[j] = new Job(j, number);
 					Jobs[j].operations = new ArrayList<>();
 					//	System.out.println(a1.readLine());// read product
 					s = a1.readLine();// read product
@@ -377,7 +377,7 @@ public class QLearning {
 			StringBuilder duration = new StringBuilder();
 			StringBuilder resource = new StringBuilder();
 			for (int m = 0; m < njobs; m++) {
-				for (int n = 0; n < Jobs[m].operations.size(); n++) {
+				for (int n = Jobs[m].opStart; n < Jobs[m].operations.size(); n++) {
 					pw.print(Jobs[m].operations.get(n).initial_time); //initial time
 					end_time.append(Jobs[m].operations.get(n).end_time);
 					duration.append(Jobs[m].operations.get(n).proc_time);
@@ -598,26 +598,25 @@ public class QLearning {
 					// if (last_op.GetJob() == jobsInExecute[0]-1) {//colocar en 0 porque el trabajo ya termino
 					if (last_op.GetJob() == jobsInExecute[0]) {//colocar en 0 porque el trabajo ya termino
 						jobsInExecute[0] = -1;
+						//System.out.println("termino "+last_op.GetJob()+" posicion 0 envie time min job "+last_op.end_time);
 						for (Job job : Jobs) {
 							if (!job.finished && job.GetID() != jobsInExecute[1]) {
+								job.temp_endtime = last_op.end_time;
 								job.Start(Machines);
-								System.out.println("posicion 0 envie "+job.GetID());
+
 							}
 						}
 					} else {
 						jobsInExecute[1] = -1;
+						//System.out.println("termino "+last_op.GetJob()+" posicion 1 envie time min job "+last_op.end_time);
 						for (Job job : Jobs) {
 							if (!job.finished && job.GetID() != jobsInExecute[0]) {
+								job.temp_endtime = last_op.end_time;
 								job.Start(Machines);
-								System.out.println("posicion 1 envie "+job.GetID());
 							}
 						}
 
 					}
-						/* if(lastJob != njobs){
-							 Jobs[lastJob].Start(Machines);
-							 lastJob++;
-						 }*/
 				}
 			}
 
@@ -1510,7 +1509,7 @@ public class QLearning {
 			a.readLine();
 			for (int j = Jobs.length - njobs; j < Jobs.length; j++) {
 				if (i == 0) {
-					Jobs[j] = new Job(j);
+					Jobs[j] = new Job(j, number);
 					Jobs[j].operations = new ArrayList<>();
 					Jobs[j].opStart = 0;
 					//a1.readLine();// read [ or white space
@@ -1652,14 +1651,14 @@ public class QLearning {
 
 		PrintWriter pwConstraint, pwTimeRecording;
 
-		File solutionFile = new File(String.format("%s/targetFileTest.txt", UPLOAD_FOLDER));
-		File solutionFile2 = new File(String.format("%s/targetFileTest2.txt", UPLOAD_FOLDER));
+		File solutionFile = new File(String.format("%s/targetFile.txt", UPLOAD_FOLDER));
+		File solutionFile2 = new File(String.format("%s/targetFile2.txt", UPLOAD_FOLDER));
 		try {
 			pwConstraint = new PrintWriter(solutionFile);
 			pwTimeRecording = new PrintWriter(solutionFile2);
 
 			String s,s1;
-			FileReader f, f1;
+			FileReader f = null, f1 = null;
 			BufferedReader a1 = null, a = null;
 			BufferedReader a_reschedule = null, a1_reschedule = null;
 
@@ -1778,6 +1777,8 @@ public class QLearning {
 			}
 			a.close();
 			a1.close();
+			f.close();
+			f1.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -37,15 +37,19 @@ public class Test {
         instance.machines = new MachineGUI[instance.numMachines];
         //System.out.println("num machine "+instance.numMachines);
         MachineGUI M;
-        int jj = 0;int prevJobId =0;
-        while((line = file.readLine()) != null) {
-            String[] numbers = line.split("\t");
+        int jj = 0;;
+        line = file.readLine();
+        String[] numbers = line.split("\t");
+        int prevJobId = Integer.parseInt(numbers[0]);
+        while(line != null) {
+            numbers = line.split("\t");
            // int jobId = Integer.valueOf(numbers[0]);
             if(prevJobId != Integer.parseInt(numbers[0])){
                 prevJobId = Integer.parseInt(numbers[0]);
                 jj++;
             }
             int jobId = jj;
+            int number = Integer.parseInt(numbers[0]);
             int opId = Integer.parseInt(numbers[1]);
             int machineId = Integer.parseInt(numbers[3]);
             String opName = String.valueOf(numbers[2]);
@@ -55,6 +59,7 @@ public class Test {
             int operation_precedent = Integer.parseInt(numbers[7]);
             int slack = Integer.parseInt(numbers[8]);
             if (ql != null) {
+               // ql.Jobs[jobId].
 				ql.Jobs[jobId].operations.get(opId).initial_time = start;
 				ql.Jobs[jobId].operations.get(opId).end_time = end;
                 ql.Jobs[jobId].operations.get(opId).Ma = machineId;
@@ -84,6 +89,7 @@ public class Test {
                     start,
                     end,
                     false));
+            line = file.readLine();
         }
         
         for (int m=0; m<instance.machines.length; m++)
