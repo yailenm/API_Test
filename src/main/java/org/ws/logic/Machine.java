@@ -370,10 +370,8 @@ public class Machine implements Cloneable{
 			}
 			//System.out.println(op.initial_time);
 		}
-		
-		return op;
 
-		
+		return op;
 	}
 
 	

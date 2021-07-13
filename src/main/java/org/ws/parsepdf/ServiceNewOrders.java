@@ -7,6 +7,7 @@ package org.ws.parsepdf;
 
 import com.sun.jersey.multipart.FormDataParam;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.ws.gui.Test;
 import org.ws.logic.Operation;
 import org.ws.logic.QLearning;
@@ -19,7 +20,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 @Path("/newOrders")
 public class ServiceNewOrders {
@@ -38,11 +41,8 @@ public class ServiceNewOrders {
                                @FormDataParam("iter") int iter,@FormDataParam("currentTime") int startTime,@FormDataParam("reschedule") boolean reschedule) {
 
         if(constraints != null && timeRecordings != null && iter > 0 && startTime > -1) {
-            double LR = 0.1;
-            double DF = 0.8;
-            double epsi = 0.2;
-
             File [] targetFile = new File[2];
+            File copy = new File(String.format("%s/copy.txt", UPLOAD_FOLDER));
 
             //Copy new files on server
             targetFile[0] = new File(String.format("%s/constraints_reschedule.txt", UPLOAD_FOLDER));
@@ -51,18 +51,27 @@ public class ServiceNewOrders {
                 boolean read = readSolutionFile(iter,reschedule);//read solution file, constraints and time recordings
                 if (read) {
                     try {
-                        String s = constraints.toString();
+                        FileUtils.copyInputStreamToFile(constraints, copy);
+                        File s = new File(String.format("%s/copy.txt", UPLOAD_FOLDER)); //Read copy
+                        BufferedReader file = new BufferedReader(new FileReader(s));
                         //Check input files are in correct order
-                        if (s.charAt(0)=='%') {
-                            FileUtils.copyInputStreamToFile(constraints, targetFile[0]);
+                         char c = file.readLine().charAt(0);
+                        if (c =='%') {
+                            //System.out.println("Entre 1 "+c);
+                            s = new File(String.format("%s/copy.txt", UPLOAD_FOLDER)); //Read copy
+                            FileUtils.copyFile(s,targetFile[0]);
                             FileUtils.copyInputStreamToFile(timeRecordings, targetFile[1]);
                         }else {
+                            //System.out.println("Entre 2 "+c);
+                            s = new File(String.format("%s/copy.txt", UPLOAD_FOLDER)); //Read copy
+                            FileUtils.copyFile(s,targetFile[1]);
                             FileUtils.copyInputStreamToFile(timeRecordings, targetFile[0]);
-                            FileUtils.copyInputStreamToFile(constraints, targetFile[1]);
+                            //FileUtils.copyInputStreamToFile(constraints, targetFile[1]);
                         }
                         startTimes(startTime);
                         ql.ReadDataNewProducts(targetFile);
                     } catch (IOException | ArrayIndexOutOfBoundsException | NumberFormatException e) {
+                        e.printStackTrace();
                         return Response.status(400).entity("One or more files are not correct").build();
                     }
                     try {
@@ -167,9 +176,15 @@ public class ServiceNewOrders {
             //operation para empezar re-schedule
             ql.Jobs[operation.GetJob()].opStart = operation.GetID() + 1;
             //System.out.println(" job "+operation.GetJob()+" opStart "+ql.Jobs[operation.GetJob()].opStart);
-            ql.Jobs[operation.GetJob()].temp_endtime = operation.end_time;
+            //ql.Jobs[operation.GetJob()].temp_endtime = operation.end_time;
+            ql.Jobs[operation.GetJob()].temp_endtime = currentTime;
+            ql.Jobs[operation.GetJob()].endTimeRechedule = currentTime;
             ql.Jobs[operation.GetJob()].finished = ql.Jobs[operation.GetJob()].opStart >= ql.Jobs[operation.GetJob()].operations.size();
            // System.out.println(" job "+operation.GetJob()+" finished "+ql.Jobs[operation.GetJob()].finished);
+        }
+
+        for (int i = 0; i < ql.zone.length ; i++){
+            System.out.println("zone "+i+" time  "+ql.zone[i].timeReScheduleZone);
         }
     }
 }

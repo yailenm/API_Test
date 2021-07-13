@@ -141,7 +141,7 @@ public class QLearning {
 			//count products
 			for (int j = 0; j < njobs; j++) {
 				if (i == 0) {
-					Jobs[j] = new Job(j, number);
+					Jobs[j] = new Job(j, j);
 					Jobs[j].operations = new ArrayList<>();
 					//	System.out.println(a1.readLine());// read product
 					s = a1.readLine();// read product
@@ -306,7 +306,7 @@ public class QLearning {
 			for (int m = 0; m < njobs; m++)
 				//for (int n=0; n < Jobs[m].operations.size(); n++){
 				for (int n = Jobs[m].opStart; n < Jobs[m].operations.size(); n++) {
-					pw.print(m + "\t"); //Job ID
+					pw.print(Jobs[m].getNumber()+ "\t"); //Job ID
 					pw.print(n + "\t"); //Oper ID
 					pw.write(Jobs[m].operations.get(n).name + "\t"); //Oper name
 					pw.write(Jobs[m].operations.get(n).Ma + "\t"); //index of the machine that executed it
@@ -367,38 +367,54 @@ public class QLearning {
 			pw.println("RESOURCES = {robotL, robotR, operator};");
 			pw.print("PRODUCTS = [");
 			for (int i = 1; i <= njobs; i++) {
-				pw.write(i + " ");
+				if (Jobs[i-1].opStart < Jobs[i-1].operations.size())
+					pw.write(Jobs[i-1].getNumber()+1 + " ");
 			}
 			pw.println("];");
 			pw.flush();
 
-			pw.print("actionStartTime = [");
+
+			StringBuilder actionStartTime = new StringBuilder();
 			StringBuilder end_time = new StringBuilder();
 			StringBuilder duration = new StringBuilder();
 			StringBuilder resource = new StringBuilder();
 			for (int m = 0; m < njobs; m++) {
 				for (int n = Jobs[m].opStart; n < Jobs[m].operations.size(); n++) {
-					pw.print(Jobs[m].operations.get(n).initial_time); //initial time
+					//System.out.println("job "+m+"opStart "+n);
+					actionStartTime.append(Jobs[m].operations.get(n).initial_time); //initial time
 					end_time.append(Jobs[m].operations.get(n).end_time);
 					duration.append(Jobs[m].operations.get(n).proc_time);
 					resource.append(Jobs[m].operations.get(n).Ma + 1);
 					if (n < Jobs[m].operations.size() - 1) {
-						pw.write(", ");
+						//System.out.println(", ");
+						actionStartTime.append(", ");
 						resource.append(", ");
 						duration.append(", ");
 						end_time.append(", ");
 					}
 
 				}
-				if (m < Jobs.length - 1) {
-					pw.print(", ");
+				//Si no es el ultimo trabajo y
+				if (m < Jobs.length - 1 && Jobs[m].opStart < Jobs[m].operations.size()) {
+					//System.out.println("2do , ");
+					actionStartTime.append(", ");
 					resource.append(", ");
 					duration.append(", ");
 					end_time.append(", ");
 				}
-				pw.flush();
+				else{
+					if (m == Jobs.length - 1){
+						if (resource.substring(resource.length()-2).equals(", ")) {
+							resource.delete(resource.length() - 2, resource.length());
+							actionStartTime.delete(actionStartTime.length()-2, actionStartTime.length());
+							duration.delete(duration.length()-2, duration.length());
+							end_time.delete(end_time.length()-2, end_time.length());
+						}
+					}
+				}
+				//pw.flush();
 			}
-			pw.println("];");
+			pw.println("actionStartTime = [" + actionStartTime+"];");
 			pw.println("actionEndTime = [" + end_time + "];");
 			pw.println("actionDuration = [" + duration + "];");
 			pw.println("selectedResource = [" + resource + "];");
@@ -1357,8 +1373,10 @@ public class QLearning {
 		for (int j = 0; j < njobs; j++) {
 			//	Jobs[j].aux_end = 0;
 			//Jobs[j].j_end_time =0;
-			if (Jobs[j].opStart != Jobs[j].operations.size())
+			if (Jobs[j].opStart != Jobs[j].operations.size()) {
 				Jobs[j].finished = false;
+				Jobs[j].temp_endtime = Jobs[j].endTimeRechedule;
+			}
 			/*for (int o=0; o<Jobs[j].operations.size(); o++){
 				Jobs[j].operations.get(o).initial_time = 0;
 				Jobs[j].operations.get(o).end_time = 0;
@@ -1509,6 +1527,7 @@ public class QLearning {
 			a.readLine();
 			for (int j = Jobs.length - njobs; j < Jobs.length; j++) {
 				if (i == 0) {
+					int number = Jobs[j-1].getNumber() + 1;//numero del trabajo = anterior + 1
 					Jobs[j] = new Job(j, number);
 					Jobs[j].operations = new ArrayList<>();
 					Jobs[j].opStart = 0;
@@ -1716,14 +1735,16 @@ public class QLearning {
 				pwConstraint.println("%%zone"+zone[i].id_zone);
 				//System.out.println("%%zone"+zone[i].id_zone);
 				int p = 1;
-				for (int j = 0; j < njobs; j++) {
+				for (int j = 0; j < njobs; j++) {//leer jobs
 					s = (j < cantJobOldFile) ? a.readLine() : a_reschedule.readLine();//read % y product que toca file constraint
-					if ((j < cantJobOldFile) && i == 0) {
+					if ((j < cantJobOldFile) && i == 0) {//leer una sola vez job de time recording
 						a1.readLine();
 					} else {
 						a1_reschedule.readLine();
 					}//read % y product que toca file time recording
+					//System.out.println("leer "+s);
 					cadArray1 = s.split("=");
+
 					if (Jobs[j].opStart < Jobs[j].operations.size()){
 						pwConstraint.println("% P"+(p)+" = "+cadArray1[1]);
 						pwTimeRecording.println("% P"+(p)+" = "+cadArray1[1]);

@@ -12,7 +12,7 @@ public class Job implements Cloneable{
 	public int j_end_time;
 	public boolean finished = false;
 	public int time_remaining;
-	public int temp_endtime;
+	public int temp_endtime,endTimeRechedule;
 	public int aux_end = 0;	
 	
 

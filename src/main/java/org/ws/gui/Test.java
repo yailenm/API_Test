@@ -59,7 +59,7 @@ public class Test {
             int operation_precedent = Integer.parseInt(numbers[7]);
             int slack = Integer.parseInt(numbers[8]);
             if (ql != null) {
-               // ql.Jobs[jobId].
+                ql.Jobs[jobId].setNumber(number);
 				ql.Jobs[jobId].operations.get(opId).initial_time = start;
 				ql.Jobs[jobId].operations.get(opId).end_time = end;
                 ql.Jobs[jobId].operations.get(opId).Ma = machineId;
