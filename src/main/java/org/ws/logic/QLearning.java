@@ -423,7 +423,7 @@ public class QLearning {
 			pw.print("resourceStartTimes = [");
 			for (int i = 0; i < nmachines; i++) {
 				//System.out.println(Machines[i].Op_executed.size());
-				pw.print(Machines[i].initial_time_machine);
+				pw.print(Machines[i].initial_time_final);
 				if (i < nmachines - 1)
 					pw.write(", ");
 				pw.flush();
@@ -435,8 +435,8 @@ public class QLearning {
 			pw.print("resourceEndTimes = [");
 			for (int i = 0; i < nmachines; i++) {
 				pw.print(Machines[i].end_time_machine);
-				resourceDurations += (Machines[i].end_time_machine - Machines[i].initial_time_machine);
-				cycleTime = Math.max(cycleTime, (Machines[i].end_time_machine - Machines[i].initial_time_machine));
+				resourceDurations += (Machines[i].end_time_machine - Machines[i].initial_time_final);
+				cycleTime = Math.max(cycleTime, (Machines[i].end_time_machine - Machines[i].initial_time_final));
 				if (i < nmachines - 1) {
 					pw.write(", ");
 					resourceDurations += ", ";
@@ -584,13 +584,19 @@ public class QLearning {
 					if (op_selected != null) {
 						Machines[m].Queue.remove(op_selected);
 						//System.out.println("eliminado "+Machines[m].Queue.remove(op_selected));
+						//System.out.println("Agrego machine "+m);
 						Machines[m].Op_executed.add(op_selected);
 						op_selected.end_time = op_selected.initial_time + op_selected.proc_time;
 						//System.out.println("Select job "+op_selected.GetJob()+" op "+op_selected.GetID()+" maq "+op_selected.M.GetID()+" Ma "+op_selected.Ma+" initial time "+op_selected.initial_time +" end time "+op_selected.end_time );
 						//a su trabajo actualizarle el end_time y mandar la otra
 						Jobs[op_selected.GetJob()].j_end_time = op_selected.end_time;
 						Jobs[op_selected.GetJob()].time_remaining = Jobs[op_selected.GetJob()].time_remaining - op_selected.proc_time;
-						Machines[m].initial_time_machine = Machines[m].Op_executed.getFirst().initial_time;
+						if (Machines[m].initial_time_machine > op_selected.initial_time){
+							Machines[m].initial_time_machine = op_selected.initial_time;
+							Machines[m].firstOp = new Operation(op_selected);
+						}
+
+						//System.out.println("First job "+ Machines[m].Op_executed.getFirst().GetJob()+" op "+ Machines[m].Op_executed.getFirst().GetID());
 						Machines[m].end_time_machine = Machines[m].Op_executed.getLast().end_time;
 					} else {
 						Working.remove(Machines[m]);
@@ -1246,7 +1252,7 @@ public class QLearning {
 		int temp = 0;
 		for (int n = 0; n < this.iterations; n++) {
 			//for (int n = 0; n < 1; n++){
-			//System.out.println("ooooo");	
+			System.out.println("ooooo");
 			/*RestartTimesForOnceReSchedule();
 			ExecuteModeOptimizationReSchedule();*/
 
@@ -1290,12 +1296,21 @@ public class QLearning {
 			//Variante 2 ModeOptimization
 			if (n == 0) {
 				BestSol = cmax;
+				for (Machine machine : Machines) {
+					machine.initial_time_final = machine.initial_time_machine;
+					System.out.println("machine "+machine.GetID()+" initial time "+machine.initial_time_machine);
+				}
 				SaveToFile(BestSol);
 			}
 			if (cmax < BestSol) {
 				//System.out.println("encontre mejor sol");
 				BestSol = cmax;
+				for (Machine machine : Machines){
+					machine.initial_time_final = machine.initial_time_machine;
+					System.out.println("machine "+machine.GetID()+" initial time "+machine.initial_time_machine);
+				}
 				SaveToFile(BestSol);
+
 				R = 1;
 				//UpdateQValuesProcedure(alpha, gamma, R);
 			} else {
@@ -1367,6 +1382,7 @@ public class QLearning {
 			Machines[x].TempOrderedList.clear();//look
 			Machines[x].Op_assigned.clear();
 			Machines[x].minInitialM = Machines[x].timeReSchedule;
+			Machines[x].initial_time_machine =  Integer.MAX_VALUE;
 		}
 
 		//restart jobs' times and each job restarts its operations' times
@@ -1398,7 +1414,7 @@ public class QLearning {
 			if (Jobs[j].opStart < Jobs[j].operations.size()) {
 				//System.out.println("job "+j);
 				if (Jobs[j].opStart == -1) Jobs[j].opStart = 0;
-				Jobs[j].startReChedule(Machines);
+				 	Jobs[j].startReChedule(Machines);
 			}
 		}
 	}

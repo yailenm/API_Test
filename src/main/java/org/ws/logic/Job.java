@@ -85,7 +85,7 @@ public class Job implements Cloneable{
 	}
 
 	public void startReChedule(Machine[] machines) {
-		//System.out.println("Mando a la op "+opStart);
+		//System.out.println("Mando a la op "+opStart+" job "+ID);
 		machines[operations.get(opStart).Ma].Queue.add(operations.get(opStart));
 		
 	}

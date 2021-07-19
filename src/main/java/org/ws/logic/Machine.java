@@ -14,8 +14,9 @@ public class Machine implements Cloneable{
 	public LinkedList<Operation> TempOrderedList;
 	public LinkedList<Operation> Op_assigned;
 	int minInitialM = 0;
-	public int initial_time_machine = 0;
+	public int initial_time_machine = Integer.MAX_VALUE, initial_time_final = 0;
 	public int end_time_machine = 0;
+	public Operation firstOp;
 	
 	public int timeReSchedule = -1;
 
@@ -200,7 +201,7 @@ public class Machine implements Cloneable{
 			for (Operation operation : Queue) {
 				int job = operation.GetJob();
 				int back2back = operation.back2back_before;
-				if (Op_executed.getLast().GetJob() == job && Op_executed.getLast().GetID() == back2back) {//if the Laster job has back to back
+				if (Op_executed.getLast().GetJob() == job && Op_executed.getLast().GetID() == back2back) {//if the laster job has back to back
 					op = operation;
 					//System.out.println(" hay backToback "+" job "+job+" op "+ op.GetID());
 					String array = "" + op.GetJob() + op.GetID() + ID;
@@ -225,6 +226,8 @@ public class Machine implements Cloneable{
 								op.initial_time = minTimePossible;
 								Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time = op.initial_time;
 								Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time = op.initial_time - Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).proc_time;
+								if (firstOp.GetID() == Op_executed.getLast().GetID() && firstOp.GetJob() == Op_executed.getLast().GetJob())
+									initial_time_machine = Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time;
 								//System.out.println("maximo entre la zona y el precedente es mayor que time del backtoback. "+time+" Se corre la op anterior "+" initial time "+Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time+" final "+Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time );
 							} else {
 								//System.out.println("maximo entre el time de la zona y el del precedente no es mayor que time del backtoback. Se pone atras del backtoback "+time);
@@ -256,6 +259,8 @@ public class Machine implements Cloneable{
 							//mover op anterior del mismo trabajo para q termine justo cuando empieza si backtoback
 							Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time = op.initial_time;
 							Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time = op.initial_time - Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).proc_time;
+							if (firstOp.GetID() == Op_executed.getLast().GetID() && firstOp.GetJob() == Op_executed.getLast().GetJob())
+								initial_time_machine = Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time;
 						} else {
 							op.initial_time = time;
 
