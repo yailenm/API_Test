@@ -147,6 +147,7 @@ public class ServiceNewOrders {
         for (int i = 0; i < ql.Jobs.length; i++) {
             for (int j = 0; j < ql.Jobs[i].operations.size(); j++) {
                 //System.out.println("job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
+                ql.Machines[ql.Jobs[i].operations.get(j).Ma].timeReSchedule = currentTime;
                 //Si empieza antes que tiempo de llegada de los nuevos products
                 if (ql.Jobs[i].operations.get(j).initial_time <= currentTime) {
                     opNoModify.add(ql.Jobs[i].operations.get(j));
@@ -161,9 +162,10 @@ public class ServiceNewOrders {
 
         //start times
         for (Operation operation : opNoModify) {
-            //System.out.println(" job "+opNoModify.get(i).GetJob()+" op "+opNoModify.get(i).GetID()+" name "+ opNoModify.get(i).name+" Ma "+opNoModify.get(i).Ma);
+            //System.out.println(" job "+operation.GetJob()+" op "+operation.GetID()+" name "+ operation.name+" Ma "+operation.Ma+" end time "+operation.end_time);
             //time of machines
-            ql.Machines[operation.Ma].timeReSchedule = Math.max(operation.end_time, currentTime);
+            ql.Machines[operation.Ma].timeReSchedule = Math.max(operation.end_time, ql.Machines[operation.Ma].timeReSchedule);
+            //System.out.println("time Reschedule "+ql.Machines[operation.Ma].timeReSchedule);
 
             //time of zones
             String job_operation_machine = "" + operation.GetJob() + operation.GetID() + operation.Ma;
@@ -183,8 +185,8 @@ public class ServiceNewOrders {
            // System.out.println(" job "+operation.GetJob()+" finished "+ql.Jobs[operation.GetJob()].finished);
         }
 
-        for (int i = 0; i < ql.zone.length ; i++){
-            System.out.println("zone "+i+" time  "+ql.zone[i].timeReScheduleZone);
+        for (int i = 0; i < ql.Machines.length ; i++){
+            System.out.println("machine "+i+" time  "+ql.Machines[i].timeReSchedule);
         }
     }
 }

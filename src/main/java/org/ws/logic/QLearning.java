@@ -1230,7 +1230,7 @@ public class QLearning {
 	//Re-schedule
 
 	public void ExecuteReSchedule() throws FileNotFoundException, CloneNotSupportedException {
-		System.out.println("reschedule Jobs.length "+Jobs.length);
+		//System.out.println("reschedule Jobs.length "+Jobs.length);
 		Date date = new Date();
 		long initial = date.getTime();
 		int R;
@@ -1298,7 +1298,7 @@ public class QLearning {
 				BestSol = cmax;
 				for (Machine machine : Machines) {
 					machine.initial_time_final = machine.initial_time_machine;
-					System.out.println("machine "+machine.GetID()+" initial time "+machine.initial_time_machine);
+					//System.out.println("machine "+machine.GetID()+" initial time "+machine.initial_time_machine);
 				}
 				SaveToFile(BestSol);
 			}
@@ -1307,7 +1307,7 @@ public class QLearning {
 				BestSol = cmax;
 				for (Machine machine : Machines){
 					machine.initial_time_final = machine.initial_time_machine;
-					System.out.println("machine "+machine.GetID()+" initial time "+machine.initial_time_machine);
+					//System.out.println("machine "+machine.GetID()+" initial time "+machine.initial_time_machine);
 				}
 				SaveToFile(BestSol);
 

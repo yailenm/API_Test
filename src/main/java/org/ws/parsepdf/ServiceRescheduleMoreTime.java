@@ -142,6 +142,7 @@ public class ServiceRescheduleMoreTime {
         ArrayList <Operation> opNoModify = new ArrayList<>();
         for (int i = 0; i < ql.Jobs.length; i++) {
             for (int j = 0; j < ql.Jobs[i].operations.size(); j++) {
+                ql.Machines[ql.Jobs[i].operations.get(j).Ma].timeReSchedule = currentTime;
                 if (ql.Jobs[i].operations.get(j).initial_time < operationFix.end_time) {
                     opNoModify.add(ql.Jobs[i].operations.get(j));
                 }else {
@@ -177,7 +178,8 @@ public class ServiceRescheduleMoreTime {
             //System.out.println(" job "+opNoModify.get(i).GetJob()+" op "+opNoModify.get(i).GetID()+" name "+ opNoModify.get(i).name+" Ma "+opNoModify.get(i).Ma);
             //time of machines
             //if (operation.end_time > ql.Machines[operation.Ma].timeReSchedule)
-            ql.Machines[operation.Ma].timeReSchedule = Math.max(operation.end_time, currentTime);
+            ql.Machines[operation.Ma].timeReSchedule = Math.max(operation.end_time, ql.Machines[operation.Ma].timeReSchedule);
+            //ql.Machines[operation.Ma].timeReSchedule = Math.max(operation.end_time, currentTime);
 
             //time of zones
             String job_operation_machine = "" + operation.GetJob() + operation.GetID() + operation.Ma;
