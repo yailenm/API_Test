@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.ws.gui.Test;
 import org.ws.logic.Operation;
 import org.ws.logic.QLearning;
+import org.ws.logic.Zone;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -159,6 +160,10 @@ public class ServiceNewOrders {
 
             }
         }
+        //inicializar la zona con el time actual
+        for (int j = 0; j < ql.zone.length; j++) {
+           ql.zone[j].timeReScheduleZone = currentTime;
+        }
 
         //start times
         for (Operation operation : opNoModify) {
@@ -172,7 +177,7 @@ public class ServiceNewOrders {
             for (int j = 0; j < ql.zone.length; j++) {
                 //si ocupa la zona el time de la zona es el max entre el end time de la op y el current time
                 if (ql.zone[j].job_operation_occupied.get(job_operation_machine).equals(true))
-                    ql.zone[j].timeReScheduleZone = Math.max(operation.end_time, currentTime);
+                    ql.zone[j].timeReScheduleZone = Math.max(operation.end_time, ql.zone[j].timeReScheduleZone);
             }
 
             //operation para empezar re-schedule
@@ -187,6 +192,9 @@ public class ServiceNewOrders {
 
         for (int i = 0; i < ql.Machines.length ; i++){
             System.out.println("machine "+i+" time  "+ql.Machines[i].timeReSchedule);
+        }
+        for (int i = 0; i < ql.zone.length ; i++){
+            System.out.println("zone "+i+" time  "+ql.zone[i].timeReScheduleZone);
         }
     }
 }

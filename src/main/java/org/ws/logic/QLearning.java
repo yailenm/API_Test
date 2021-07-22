@@ -1136,6 +1136,7 @@ public class QLearning {
 		long initial = date.getTime();
 		int R;
 
+
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(Date.from(Instant.now()));
 
@@ -1196,11 +1197,19 @@ public class QLearning {
 			//Variante 2 ModeOptimization
 			if (n == 0) {
 				BestSol = cmax;
+				for (Machine machine : Machines) {
+					machine.initial_time_final = machine.initial_time_machine;
+					//System.out.println("machine "+machine.GetID()+" initial time "+machine.initial_time_machine);
+				}
 				SaveToFile(BestSol);
 			}
 			if (cmax < BestSol) {
 				//	System.out.println("encontre mejor sol");
 				BestSol = cmax;
+				for (Machine machine : Machines) {
+					machine.initial_time_final = machine.initial_time_machine;
+					//System.out.println("machine "+machine.GetID()+" initial time "+machine.initial_time_machine);
+				}
 				SaveToFile(BestSol);
 				R = 1;
 				//UpdateQValuesProcedure(alpha, gamma, R);
@@ -1234,6 +1243,7 @@ public class QLearning {
 		Date date = new Date();
 		long initial = date.getTime();
 		int R;
+
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(Date.from(Instant.now()));
 		//file_saved = "Solutions/Mine/Solution-" + filename + ".txt";
@@ -1252,7 +1262,7 @@ public class QLearning {
 		int temp = 0;
 		for (int n = 0; n < this.iterations; n++) {
 			//for (int n = 0; n < 1; n++){
-			System.out.println("ooooo");
+			//System.out.println("ooooo");
 			/*RestartTimesForOnceReSchedule();
 			ExecuteModeOptimizationReSchedule();*/
 

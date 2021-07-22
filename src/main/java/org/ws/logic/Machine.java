@@ -221,27 +221,29 @@ public class Machine implements Cloneable{
 						if (op.operation_precedent > -1) {
 							int time_precedent = Jobs[op.GetJob()].operations.get(op.operation_precedent).end_time;
 							minTimePossible = Math.max(timeZone, time_precedent);//max between time zone and time precedent
+							op.initial_time = Math.max(minTimePossible, time);//max between minTimePossible and time of machine
 							//System.out.println(" Tiene de precedent "+op.operation_precedent+" time final precedent "+time_precedent);
-							if (minTimePossible > time) {//si el tiempo final del anterior(=time machine)es menor q minTimePOssible pegar a esta operacion
+							/*if (minTimePossible > time) {//si el tiempo final del anterior(=time machine)es menor q minTimePOssible pegar a esta operacion
 								op.initial_time = minTimePossible;
-								Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time = op.initial_time;
-								Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time = op.initial_time - Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).proc_time;
-								if (firstOp.GetID() == Op_executed.getLast().GetID() && firstOp.GetJob() == Op_executed.getLast().GetJob())
-									initial_time_machine = Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time;
+
+
 								//System.out.println("maximo entre la zona y el precedente es mayor que time del backtoback. "+time+" Se corre la op anterior "+" initial time "+Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time+" final "+Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time );
 							} else {
 								//System.out.println("maximo entre el time de la zona y el del precedente no es mayor que time del backtoback. Se pone atras del backtoback "+time);
 								op.initial_time = time;
-							}
+							}*/
 						} else {
 							op.initial_time = Math.max(timeZone, time);
 							//System.out.println("no tiene precedente la operacion time initial "+op.initial_time);
-							if (op.initial_time > time) {//si el tiempo final del anterior(=time machine)es menor q minTimePOssible pegar a esta operacion
+							/*if (op.initial_time > time) {//si el tiempo final del anterior(=time machine)es menor q minTimePOssible pegar a esta operacion
 								//op.initial_time = minTimePossible;
-								Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time = op.initial_time;
-								Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time = op.initial_time - Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).proc_time;
+								boolean zoneOccup = checkZonePrecedent(Op_executed.getLast(),zone);//check if precedent occupies any zone
+								if (!zoneOccup) {
+									Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time = op.initial_time;
+									Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time = op.initial_time - Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).proc_time;
+								}
 								//System.out.println("El tiempo inicial es mayor q el time final de la anterior. Se corre la op anterior "+" initial time "+Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time+" final "+Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time );
-							}
+							}*/
 							//System.out.println("no tiene precedente la operacion. Se pone pegada al back to Back "+time);
 							//time = op.initial_time + op.proc_time;
 						}
@@ -256,17 +258,29 @@ public class Machine implements Cloneable{
 						if (op.operation_precedent > -1) {
 							int time_precedent = Jobs[op.GetJob()].operations.get(op.operation_precedent).end_time;
 							op.initial_time = Math.max(time_precedent, time);
-							//mover op anterior del mismo trabajo para q termine justo cuando empieza si backtoback
-							Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time = op.initial_time;
-							Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time = op.initial_time - Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).proc_time;
-							if (firstOp.GetID() == Op_executed.getLast().GetID() && firstOp.GetJob() == Op_executed.getLast().GetJob())
-								initial_time_machine = Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time;
+							/*boolean zoneOccup = checkZonePrecedent(Op_executed.getLast(),zone);//check if precedent occupies any zone
+							if (!zoneOccup){
+								//mover op anterior del mismo trabajo para q termine justo cuando empieza si backtoback
+								Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time = op.initial_time;
+								Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time = op.initial_time - Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).proc_time;
+								if (firstOp.GetID() == Op_executed.getLast().GetID() && firstOp.GetJob() == Op_executed.getLast().GetJob())
+									initial_time_machine = Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time;
+							}*/
+
 						} else {
 							op.initial_time = time;
 
 							//System.out.println("Llego al final y no ocupa zona lo pongo en el time de la machine. Time initial op "+op.initial_time+" time maquina "+time);
 						}
 						time = op.initial_time + op.proc_time;
+					}
+
+					boolean zoneOccup = checkZonePrecedent(Op_executed.getLast(),zone);//check if precedent occupies any zone
+					if (!zoneOccup){
+						Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).end_time = op.initial_time;
+						Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time = op.initial_time - Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).proc_time;
+						if (firstOp.GetID() == Op_executed.getLast().GetID() && firstOp.GetJob() == Op_executed.getLast().GetJob())
+							initial_time_machine = Jobs[op.GetJob()].operations.get(Op_executed.getLast().GetID()).initial_time;
 					}
 					flag = false;
 					break;
@@ -379,5 +393,18 @@ public class Machine implements Cloneable{
 		return op;
 	}
 
-	
+	private boolean checkZonePrecedent(Operation op, Zone[] zone) {
+		boolean zone_occupied = false;
+		String array = "" + op.GetJob() + op.GetID() + ID;
+		//buscar la zona
+		for (int i = 0; i < zone.length; i++) {
+			if (zone[i].job_operation_occupied.get(array).equals(true)) {
+				zone_occupied = true;
+				break;
+			}
+		}
+		return zone_occupied;
+	}
+
+
 }

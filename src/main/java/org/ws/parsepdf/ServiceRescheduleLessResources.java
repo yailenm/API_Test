@@ -173,9 +173,9 @@ public class ServiceRescheduleLessResources {
             ql.Jobs[operation.GetJob()].temp_endtime = currentTime;
             ql.Jobs[operation.GetJob()].finished = ql.Jobs[operation.GetJob()].opStart >= ql.Jobs[operation.GetJob()].operations.size();
         }
-        for (Job j: ql.Jobs) {
+        /*for (Job j: ql.Jobs) {
             System.out.println("job "+j.GetID()+" opStart "+j.opStart+" time "+j.operations.get(j.opStart-1).end_time);
-        }
+        }*/
         //System.out.println(" job 0 opStart "+ ql.Jobs[0].opStart);
         //System.out.println(" job 1 opStart "+ ql.Jobs[1].opStart);
     }
