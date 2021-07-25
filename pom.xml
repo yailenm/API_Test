@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ws.parsepdf</groupId>
-  <artifactId>ws_parserpdf</artifactId>
+  <artifactId>poc</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>ws_parserpdf Maven Webapp</name>
+  <name>poc Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -64,7 +64,7 @@
         </includes>
       </resource>
     </resources>
-    <finalName>ws_parserpdf</finalName>
+    <finalName>poc</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

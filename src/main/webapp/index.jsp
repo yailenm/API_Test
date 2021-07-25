@@ -8,7 +8,7 @@
     </tr>
     <tr>
         <td>
-        <form action="/ws_parserpdf/rest/upload" method="post" enctype="multipart/form-data">
+        <form action="/poc/rest/upload" method="post" enctype="multipart/form-data">
             Choose Time Recordings file to upload<br>
             <input name="file" id="filename" type="file" /><br><br>
             Choose constraints file to upload<br>
@@ -22,7 +22,7 @@
         </td>
         <td></td>
        <td>
-        <form action="/ws_parserpdf/rest/newOrders" method="post" enctype="multipart/form-data">
+        <form action="/poc/rest/newOrders" method="post" enctype="multipart/form-data">
             Choose Time Recordings file to upload<br>
             <input name="file" id="f" type="file" /><br><br>
             Choose constraints file to upload<br>

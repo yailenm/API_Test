@@ -40,7 +40,7 @@ public class ServiceRescheduleLessResources {
     @Produces({"application/json"})
     //Parametros: nombre del recurso a salir, time
     public Response uploadFile(@FormDataParam("resource") String resource, @FormDataParam("currentTime") int currentTime,
-                               @FormDataParam("iter") int iter, @FormDataParam("reschedule") boolean reschedule) {
+                               @FormDataParam("iter") int iter, @FormDataParam("reschedule") boolean reschedule, @FormDataParam("active") boolean active) {
 
         if(resource != null && currentTime > -1 && iter > 0) {
             boolean solution = readSolutionFile(iter,reschedule);//read solution file, constraints and time recordings
@@ -49,7 +49,8 @@ public class ServiceRescheduleLessResources {
                 for (int i = 0; i < ql.Machines.length; i++){
                     ql.Machines[i].timeReSchedule = currentTime;
                 }
-                ql.Machines[machine].active = false;
+                ql.Machines[machine].active = active;
+                //System.out.println("ServiceRescheduleLessResources.uploadFile "+ ql.Machines[machine].active);
                 startTimes(machine,currentTime);
                 try {
                     ql.ExecuteReSchedule();
@@ -68,11 +69,17 @@ public class ServiceRescheduleLessResources {
 
     static int getMachine(String resource) {
         int machine;
-        switch (resource){
+        if (resource.equalsIgnoreCase("robotL"))
+            machine = 0;
+        else if (resource.equalsIgnoreCase("robotR"))
+            machine = 1;
+        else
+            machine = 2;
+       /* switch (resource){
             case "robotL": machine = 0; break;
             case "robotR": machine = 1; break;
             default: machine = 2; break;
-        }
+        }*/
         return machine;
     }
 
@@ -126,23 +133,23 @@ public class ServiceRescheduleLessResources {
         ArrayList<Operation> opNoModify = new ArrayList<>();
         for (int i = 0; i < ql.Jobs.length; i++) {
             for (int j = 0; j < ql.Jobs[i].operations.size(); j++) {
-                System.out.println("job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID()+" Ma "+ ql.Jobs[i].operations.get(j).Ma);
+                //System.out.println("job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID()+" Ma "+ ql.Jobs[i].operations.get(j).Ma);
                 if (ql.Jobs[i].operations.get(j).end_time <= currentTime ||
                         (ql.Jobs[i].operations.get(j).initial_time < currentTime && ql.Jobs[i].operations.get(j).Ma != machine)) {
                     opNoModify.add(ql.Jobs[i].operations.get(j));
-                    System.out.println("add 1 job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
+                    //System.out.println("add 1 job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
                 }else if (ql.Jobs[i].operations.get(j).back2back_before != -1){ //si has back to back
                     //si la op back2back_before starts before current time y isn't the broken machine
                     if (ql.Jobs[i].operations.get(ql.Jobs[i].operations.get(j).back2back_before).initial_time <= currentTime
                             && ql.Jobs[i].operations.get(j).Ma != machine) {
                         opNoModify.add(ql.Jobs[i].operations.get(j));
-                        System.out.println("add 2 job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
+                        //System.out.println("add 2 job "+ql.Jobs[i].GetID()+" op "+ql.Jobs[i].operations.get(j).GetID());
                     }
                     //si la op back2back_before ends before current time y it's the broken machine
                     if (ql.Jobs[i].operations.get(ql.Jobs[i].operations.get(j).back2back_before).end_time <= currentTime
                             && ql.Jobs[i].operations.get(j).Ma == machine) {
                          //quito la op del array
-                        System.out.println("remove job "+opNoModify.get(opNoModify.size()-1).GetJob()+" op "+opNoModify.get(opNoModify.size()-1).GetID());
+                        //System.out.println("remove job "+opNoModify.get(opNoModify.size()-1).GetJob()+" op "+opNoModify.get(opNoModify.size()-1).GetID());
                        opNoModify.remove(opNoModify.size()-1);
                         break;
                     }

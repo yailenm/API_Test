@@ -9,7 +9,7 @@ deploy_prod:
     - mvn clean
     - mvn compile
     - mvn org.apache.maven.plugins:maven-war-plugin:2.3:exploded
-    - rsync  --archive ./target/ws_parserpdf/ $CATALINA_HOME/webapps/ws_parserpdf/
+    - rsync  --archive ./target/poc/ $CATALINA_HOME/webapps/poc/
   environment:
     name: production
   only:

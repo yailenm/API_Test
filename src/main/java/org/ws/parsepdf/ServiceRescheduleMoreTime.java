@@ -23,7 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@Path("/rescheduleTimeExtension")
+@Path("/timeExtension")
 public class ServiceRescheduleMoreTime {
     private static final String UPLOAD_FOLDER = System.getProperty("java.io.tmpdir") + "/uploaded";
    // private static final String UPLOAD_FOLDER_CONST = System.getProperty("java.io.tmpdir") + "/uploaded";
